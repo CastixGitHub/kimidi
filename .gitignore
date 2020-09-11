@@ -1,0 +1,4 @@
+# emacs file that I use to activate virtualenv
+.dir-locals.el
+
+*.py[co]
