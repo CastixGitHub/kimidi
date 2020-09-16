@@ -1,9 +1,11 @@
+import os
 import json
 from functools import partial
 from kivy.app import App
 from kivy.config import Config
 from kivy.lang import Builder
 from kivy.core.text import Label as CoreLabel
+from kivy.core.window import Window
 from kivy.uix.label import Label
 from kivy.uix.widget import Widget
 from kivy.uix.gridlayout import GridLayout
@@ -49,7 +51,6 @@ def hex(l):
     s = '#'
     for c in l:
         s += format(int(c * 255), '02x')
-    print(s)
     return s
 
 def nof(n, of):
@@ -57,10 +58,39 @@ def nof(n, of):
     return [of for x in range(n)]
 
 
+def parse_vkeybdmap(path):
+    """If you wish you can share the same keyboard mapping of vkeyboard.
+    This works even without vkeybdmap installed. but you should take care of locale"""
+    available_keys = {}
+    locations = [
+        path,  # by default ~/.vkeybdmap
+        '~/vkeybdmap',
+        '/etc/vkeybdmap',
+        '/usr/share/vkeybd/vkeybdmap',
+        __file__.replace('main.py', '/vkeybdmap'),
+    ]
+    for path in locations:
+        try:
+            with open(path, 'r') as f:
+                content = f.read()
+                content = content[content.index('{') + 2:content.rindex('}') - 1]
+                for line in content.split('\n'):
+                    c = line[line.index('{') + 1:line.rindex(' ')]
+                    v = int(line[line.rindex(' ') + 1:line.index('}')])
+                    available_keys[c] = v
+                return available_keys
+        except FileNotFoundError:
+            print('info:', path, 'not found')
+    raise Exception('no vkeybdmap file found!')
+
+
 output = open_output()
 
 with open('config.json') as cfg_file:
     config = json.load(cfg_file)
+
+
+keys = parse_vkeybdmap(config.get('vkeydbmap', '~/.vkeybdmap'))
 
 
 class Knob(Knob):
@@ -188,11 +218,32 @@ class BoxSliders(BoxLayout):
 class Root(BoxLayout):
     def __init__(self, **kwargs):
         super(Root, self).__init__(**kwargs)
+
+        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
+        self._keyboard.bind(on_key_down=self.on_key_down, on_key_up=self.on_key_up)
+
         knobs = BoxKnob(config['knobs'], size_hint=(0.7, 1))
         self.add_widget(knobs)
 
         sliders = BoxSliders(config['sliders'], size_hint=(0.3, 1))
         self.add_widget(sliders)
+
+    def _keyboard_closed(self):
+        self._keyboard.unbind(on_key_down=self.on_key_down, on_key_up=self.on_key_up)
+        self._keyboard = None
+
+    def on_key_down(self, keyboard, keycode, text, modifiers):
+        if text in keys:
+            msg = Message('note_on', note=keys[text], velocity=64, channel=0)
+            print(msg)
+            output.send(msg)
+
+    def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
+        if scancode[1] in keys:
+            msg = Message('note_off', note=keys[scancode[1]], velocity=64, channel=0)
+            print(msg)
+            output.send(msg)
+
 
 
 class KiMidiApp(App):
@@ -200,9 +251,20 @@ class KiMidiApp(App):
         return Root()
 
 
+# turn down auto repeat of keyboard (otherwise you'll get a lot on note_on for a single note_off)
+os.system('xset -r')
+
+
 # otherwise right and middle click will show red dots...
 Config.set('input', 'mouse', 'mouse,multitouch_on_demand')
 
 
 if __name__ == '__main__':
-    KiMidiApp().run()
+    try:
+        KiMidiApp().run()
+    except KeyboardInterrupt:
+        print('closing')
+
+
+# bring back autorepeat
+os.system('xset r')
