@@ -1,0 +1,35 @@
+* KiMidi
+The energy of midi
+
+** introduction
+Is a software that acts as a midi controller
+
+** dependencies
+python3
+rtmidi
+mido
+kivy
+kivy.garden.knob
+
+** installation
+TODO
+
+** todo
+[x] ui: configurable color of knobs
+[ ] ui: mapping of feasible values for knob (eg: sine, tri...)
+[ ] feat: keyboard should send midi_on and note_off
+[ ] feat: selectable configuration file
+[ ] feat: channel selection
+[ ] ux: right click selects a knob (overlay)
+[ ] feat: selected knobs should move together
+[ ] with two selected knobs: should move together in inverse direction if ctrl pressed
+[ ] with two selected knobs: the second should move (m: default 2) times faster as the first if shift is pressed
+[ ] with two selected knobs: enable shift+numbers to change m for speed change with shift (1 is 0.5) (0 is 10)
+[ ] feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
+[ ] midi input (if the knob is changed on the controlled system, the value should be updated even in kimidi)
+[ ] readme: installation
+[ ] readme: example with fluidsynth
+[ ] readme: screenshoots
+[ ] send to remote repository
+[ ] mirror on github
+[ ] buy ice cream

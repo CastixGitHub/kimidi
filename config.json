@@ -1,0 +1,397 @@
+{
+    "knobs" : [
+	{
+	    "control" : 1,
+	    "text" : "osc1: wave shape",
+	    "max": 3,
+	    "color": "red"
+	},
+	{
+	    "control" : 2,
+	    "text" : "osc1: pulse width",
+	    "color": "red"
+	},
+	{
+	    "control" : 3,
+	    "text" : "osc1: fine tune",
+	    "color": "red"
+	},
+	{
+	    "control" : 4,
+	    "text" : "osc1: course tune",
+	    "color": "red"
+	},
+	{
+	    "control" : 9,
+	    "text" : "osc2: wave shape",
+	    "max": 3,
+	    "color": "blue"
+	},
+	{
+	    "control" : 10,
+	    "text" : "osc2: pulse width",
+	    "color": "blue"
+	},
+	{
+	    "control" : 11,
+	    "text" : "osc2: fine tune",
+	    "color": "blue"
+	},
+	{
+	    "control" : 12,
+	    "text" : "osc2: course tune",
+	    "color": "blue"
+	},
+	{
+	    "control" : 17,
+	    "text" : "osc3: wave shape",
+	    "max" : 3,
+	    "color": "magenta"
+	},
+	{
+	    "control" : 18,
+	    "text" : "osc3: pulse width",
+	    "color": "magenta"
+	},
+	{
+	    "control" : 19,
+	    "text" : "osc3: fine tune",
+	    "color": "magenta"
+	},
+	{
+	    "control" : 20,
+	    "text" : "osc3: course tune",
+	    "color": "magenta"
+	},
+	{
+	    "control" : 25,
+	    "text" : "osc4: wave shape",
+	    "max" : 3,
+	    "color": "l_orange"
+	},
+	{
+	    "control" : 26,
+	    "text" : "osc4: pulse width",
+	    "color": "l_orange"
+	},
+	{
+	    "control" : 27,
+	    "text" : "osc4: fine tune",
+	    "color": "l_orange"
+	},
+	{
+	    "control" : 28,
+	    "text" : "osc4: course tune",
+	    "color": "l_orange"
+	},
+	{
+	    "control" : 34,
+	    "text" : "noise: color",
+	    "max" : 1
+	},
+	{
+	    "control" : 35,
+	    "text" : "lfp: 12/24 db",
+	    "max" : 1
+	},
+	{
+	    "control" : 36,
+	    "text" : "lfp: cutoff"
+	},
+	{
+	    "control" : 37,
+	    "text" : "lfp: resonance"
+	},
+	{
+	    "control" : 38,
+	    "text" : "hfp: cutoff"
+	},
+	{
+	    "control" : 39,
+	    "text" : "lfp: overdrive"
+	},
+	{
+	    "control" : 40,
+	    "text" : "amp env: attack",
+	    "color" : "#C05780"
+	},
+	{
+	    "control" : 41,
+	    "text" : "amp env: decay",
+	    "color" : "#C05780"
+	},
+	{
+	    "control" : 42,
+	    "text" : "amp env: sustain",
+	    "color" : "#C05780"
+	},
+	{
+	    "control" : 43,
+	    "text" : "amp env: release",
+	    "color" : "#C05780"
+	},
+	{
+	    "control" : 44,
+	    "text" : "amp env: length multiplier",
+	    "color" : "#C05780"
+	},
+	{
+	    "control": 45,
+	    "text" : "pitch env: attack"
+	},
+	{
+	    "control" : 46,
+	    "text" : "pitch env: decay"
+	},
+	{
+	    "control" : 47,
+	    "text" : "pitch env: range"
+	},
+	{
+	    "control" : 48,
+	    "text" : "filter env: attack"
+	},
+	{
+	    "control": 49,
+	    "text" : "filter env: decay"
+	},
+	{
+	    "control" : 50,
+	    "text" : "filter env: sustain"
+	},
+	{
+	    "control" : 51,
+	    "text" : "filter env: release"
+	},
+	{
+	    "control" : 52,
+	    "text" : "filter env: length multiplier"
+	},
+	{
+	    "control" : 53,
+	    "text" : "filter env: frequency range"
+	},
+	{
+	    "control" : 54,
+	    "text" : "filter env: track pitch"
+	},
+	{
+	    "control" : 55,
+	    "text" : "filter env: track amplitude"
+	},
+	{
+	    "control" : 56,
+	    "text" : "delay: left"
+	},
+	{
+	    "control" : 57,
+	    "text" : "delay: right"
+	},
+	{
+	    "control" : 58,
+	    "text" : "delay: mix"
+	},
+	{
+	    "control" : 59,
+	    "text" : "delay: feedback"
+	},
+	{
+	    "control" : 60,
+	    "text" : "reverb: mix"
+	},
+	{
+	    "control" : 61,
+	    "text" : "reverb: room size"
+	},
+	{
+	    "control" : 62,
+	    "text" : "reverb: pre-delay"
+	},
+	{
+	    "control" : 63,
+	    "text" : "reverb: absorb"
+	},
+	{
+	    "control" : 64,
+	    "text" : "flanger: mix"
+	},
+	{
+	    "control" : 65,
+	    "text" : "flanger: lo/ms"
+	},
+	{
+	    "control" : 66,
+	    "text" : "flanger: lo/scale"
+	},
+	{
+	    "control" : 67,
+	    "text" : "flanger: hi/ms"
+	},
+	{
+	    "control" : 68,
+	    "text" : "flanger: hi/scale"
+	},
+	{
+	    "control" : 69,
+	    "text" : "flanger: rate"
+	},
+	{
+	    "control" : 70,
+	    "text" : "flanger: feedback"
+	},
+	{
+	    "control" : 72,
+	    "text" : "global: pan"
+	},
+	{
+	    "control" : 74,
+	    "text" : "global: portamento"
+	},
+	{
+	    "control" : 75,
+	    "text" : "RESET (if max)"
+	},
+	{
+	    "control" : 76,
+	    "text" : "matrix: source"
+	},
+	{
+	    "control" : 77,
+	    "text" : "matrix: target"
+	},
+	{
+	    "control" : 78,
+	    "text" : "matrix: amt"
+	},
+	{
+	    "control" : 80,
+	    "text" : "lfo1: attack"
+	},
+	{
+	    "control" : 81,
+	    "text" : "lfo1: decay"
+	},
+	{
+	    "control" : 82,
+	    "text" : "lfo1: attack curve"
+	},
+	{
+	    "control" : 83,
+	    "text" : "lfo1: decay curve"
+	},
+	{
+	    "control" : 84,
+	    "text" : "lfo1: length"
+	},
+	{
+	    "control" : 85,
+	    "text" : "lfo1: amplitude"
+	},
+	{
+	    "control" : 86,
+	    "text" : "lfo1: frequency"
+	},
+	{
+	    "control" : 87,
+	    "text" : "lfo1: wave"
+	},
+		{
+	    "control" : 88,
+	    "text" : "lfo2: attack"
+	},
+	{
+	    "control" : 89,
+	    "text" : "lfo2: decay"
+	},
+	{
+	    "control" : 90,
+	    "text" : "lfo2: attack curve"
+	},
+	{
+	    "control" : 91,
+	    "text" : "lfo2: decay curve"
+	},
+	{
+	    "control" : 92,
+	    "text" : "lfo2: length"
+	},
+	{
+	    "control" : 93,
+	    "text" : "lfo2: amplitude"
+	},
+	{
+	    "control" : 94,
+	    "text" : "lfo2: frequency"
+	},
+	{
+	    "control" : 95,
+	    "text" : "lfo2: wave"
+	},
+	{
+	    "control" : 96,
+	    "text" : "lfo3: attack"
+	},
+	{
+	    "control" : 97,
+	    "text" : "lfo3: decay"
+	},
+	{
+	    "control" : 98,
+	    "text" : "lfo3: attack curve"
+	},
+	{
+	    "control" : 99,
+	    "text" : "lfo3: decay curve"
+	},
+	{
+	    "control" : 100,
+	    "text" : "lfo3: length"
+	},
+	{
+	    "control" : 101,
+	    "text" : "lfo3: amplitude"
+	},
+	{
+	    "control" : 102,
+	    "text" : "lfo3: frequency"
+	},
+	{
+	    "control" : 103,
+	    "text" : "lfo3: wave"
+	}
+    ],
+    "sliders" : [
+	{
+	    "control" : 0,
+	    "text" : "osc1: gain",
+	    "color": "red"
+	},
+	{
+	    "control" : 8,
+	    "text" : "osc2: gain",
+	    "color": "blue"
+	},
+	{
+	    "control" : 16,
+	    "text" : "osc3: gain",
+	    "color": "magenta"
+	},
+	{
+	    "control" : 24,
+	    "text" : "osc4: gain",
+	    "color": "l_orange"
+	},
+	{
+	    "control" : 32,
+	    "text" : "sub: gain"
+	},
+	{
+	    "control" : 33,
+	    "text" : "noise: gain"
+	},
+	{
+	    "control" : 73,
+	    "text" : "global: gain"
+	}
+    ]
+}
