@@ -3,6 +3,7 @@ import json
 from functools import partial
 from kivy.app import App
 from kivy.config import Config
+from kivy.logger import Logger
 from kivy.lang import Builder
 from kivy.core.text import Label as CoreLabel
 from kivy.core.window import Window
@@ -35,6 +36,7 @@ colors = {
     'l_pink': [0xFF / 255, 0xDE / 255, 0xE1 / 255, base_alpha],
 }
 
+
 def get_color(c):
     if isinstance(c, str):
         if c in colors:
@@ -47,11 +49,13 @@ def get_color(c):
             return [r, g, b, base_alpha]
     return c  # whatever it is...
 
+
 def hex(l):
     s = '#'
     for c in l:
         s += format(int(c * 255), '02x')
     return s
+
 
 def nof(n, of):
     """number of (3, 5) -> 5, 5, 5"""
@@ -77,10 +81,10 @@ def parse_vkeybdmap(path):
                 for line in content.split('\n'):
                     c = line[line.index('{') + 1:line.rindex(' ')]
                     v = int(line[line.rindex(' ') + 1:line.index('}')])
-                    available_keys[c] = v
+                    available_keys[c] = v + 48
                 return available_keys
         except FileNotFoundError:
-            print('info:', path, 'not found')
+            Logger.info(f'{path} not found')
     raise Exception('no vkeybdmap file found!')
 
 
@@ -149,7 +153,7 @@ class MidiKnob(Knob):
         value = int(value)
         msg = Message('control_change', control=self.control, channel=0, value=value)
         output.send(msg)
-        print(msg)
+        Logger.info(msg)
 
 
 class BoxKnob(GridLayout):
@@ -187,7 +191,7 @@ class BoxSliders(BoxLayout):
         def __on_value(obj, value):
             msg = Message('control_change', value=int(value), control=obj.control, channel=0)
             output.send(msg)
-            print(msg)
+            Logger.info(msg)
 
         for slider in sliders:
             inner = BoxLayout(orientation='vertical')
@@ -235,13 +239,13 @@ class Root(BoxLayout):
     def on_key_down(self, keyboard, keycode, text, modifiers):
         if text in keys:
             msg = Message('note_on', note=keys[text], velocity=64, channel=0)
-            print(msg)
+            Logger.info(msg)
             output.send(msg)
 
     def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
         if scancode[1] in keys:
             msg = Message('note_off', note=keys[scancode[1]], velocity=64, channel=0)
-            print(msg)
+            Logger.info(msg)
             output.send(msg)
 
 
@@ -263,7 +267,7 @@ if __name__ == '__main__':
     try:
         KiMidiApp().run()
     except KeyboardInterrupt:
-        print('closing')
+        Logger.info('closing')
 
 
 # bring back autorepeat

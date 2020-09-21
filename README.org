@@ -4,6 +4,10 @@ The energy of midi
 ** introduction
 Is a software that acts as a midi controller
 
+** features
+- fully configurable boxes of knobs and sliders (midi control change (CC))
+- sends keyboards events (midi ON and midi OFF) (key map shared/like vkeybd)
+
 ** dependencies
 python3
 rtmidi
@@ -14,22 +18,70 @@ kivy.garden.knob
 ** installation
 TODO
 
+** example with extempore
+run kimidi, then
+run extempore and evaluate the following code
+
+#+BEGIN_SRC scheme
+(sys:load "examples/sharedsystem/setup.xtm")
+
+(bind-func bare_start_note
+  (lambda (inst:[SAMPLE,SAMPLE,i64,i64,SAMPLE*]* pitch:i32 volume:i32)
+    (let ((dargs:SAMPLE* (alloc)))
+      (xtm_start_note (now) inst (midi2frq (convert pitch float))
+		      (midi2frq (convert volume float)) 0 dargs))))
+
+(bind-func midi_note_on:[void,i32,i32,i32,i32]*
+  (lambda (timestamp:i32 pitch:i32 value:i32 chan:i32)
+    (println "got note on" pitch value chan)
+    (bare_start_note syn1 pitch value)
+    void))
+
+(bind-func get_stopping_note:[NoteData*,[SAMPLE,SAMPLE,i64,i64,SAMPLE*]*,i32]*
+  (lambda (inst:[SAMPLE,SAMPLE,i64,i64,SAMPLE*]* pitch:i32)
+    (let ((note:NoteData* null)
+	  (loop (lambda (i:i64)
+		  (println i pitch (frq2midi (note_frequency (pref (inst.notes:NoteData**) i))))
+		  (if (= (convert pitch float)
+			 (frq2midi (note_frequency (pref (inst.notes:NoteData**) i))))
+		      (set! note (pref (inst.notes:NoteData**) i))
+		      (if (< i (- MAXPOLYPHONY 1))
+			  (loop (+ i 1))
+			  null)))))
+      (loop 0)
+      (println "stopping note" note)
+      note)))
+
+(bind-func midi_note_off:[void,i32,i32,i32,i32]*
+  (lambda (timestamp:i32 pitch:i32 volume:i32 chan:i32)
+    (println "note off" timestamp pitch volume chan)
+    (let ((stopping_note:NoteData* (get_stopping_note syn1 pitch)))
+      (println "stopping now" pitch stopping_note)
+      (xtm_stop_note (cast stopping_note))
+      void)))
+#+END_SRC
+Then you can start hacking with the knobs
+This example shows how to use kimidi with extempore sharedsystem example
+using only one analogue synth *syn1* you can use the chan parameter to bind other instruments
+
 ** todo
 [x] ui: configurable color of knobs
 [ ] ui: mapping of feasible values for knob (eg: sine, tri...)
-[ ] feat: keyboard should send midi_on and note_off
+[x] feat: keyboard should send midi_on and note_off
+[ ] feat: configurable base note (octave) (default 48)
 [ ] feat: selectable configuration file
-[ ] feat: channel selection
+[ ] feat: channel selection by keyboard numbers
 [ ] ux: right click selects a knob (overlay)
 [ ] feat: selected knobs should move together
 [ ] with two selected knobs: should move together in inverse direction if ctrl pressed
 [ ] with two selected knobs: the second should move (m: default 2) times faster as the first if shift is pressed
 [ ] with two selected knobs: enable shift+numbers to change m for speed change with shift (1 is 0.5) (0 is 10)
 [ ] feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
-[ ] midi input (if the knob is changed on the controlled system, the value should be updated even in kimidi)
+[ ] midi input (feedback) (if the knob is changed on the controlled system, the value should be updated even in kimidi)
 [ ] readme: installation
 [ ] readme: example with fluidsynth
+[ ] readme: example with extempore
 [ ] readme: screenshoots
 [ ] send to remote repository
 [ ] mirror on github
-[ ] buy ice cream
+[x] buy ice cream
