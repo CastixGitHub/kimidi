@@ -60,28 +60,29 @@ run extempore and evaluate the following code
       (xtm_stop_note (cast stopping_note))
       void)))
 #+END_SRC
-Then you can start hacking with the knobs
+Then 
 This example shows how to use kimidi with extempore sharedsystem example
 using only one analogue synth *syn1* you can use the chan parameter to bind other instruments
 
-** todo
-[x] ui: configurable color of knobs
-[ ] ui: mapping of feasible values for knob (eg: sine, tri...)
-[x] feat: keyboard should send midi_on and note_off
-[ ] feat: configurable base note (octave) (default 48)
-[ ] feat: selectable configuration file
-[ ] feat: channel selection by keyboard numbers
-[ ] ux: right click selects a knob (overlay)
-[ ] feat: selected knobs should move together
-[ ] with two selected knobs: should move together in inverse direction if ctrl pressed
-[ ] with two selected knobs: the second should move (m: default 2) times faster as the first if shift is pressed
-[ ] with two selected knobs: enable shift+numbers to change m for speed change with shift (1 is 0.5) (0 is 10)
-[ ] feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
-[ ] midi input (feedback) (if the knob is changed on the controlled system, the value should be updated even in kimidi)
-[ ] readme: installation
-[ ] readme: example with fluidsynth
-[ ] readme: example with extempore
-[ ] readme: screenshoots
-[ ] send to remote repository
-[ ] mirror on github
-[x] buy ice cream
+
+** todos
+*** DONE ui: configurable color of knobs
+*** TODO ui: mapping of feasible values for knob (eg: sine, tri...)
+*** DONE feat: keyboard should send midi_on and note_off
+*** TODO feat: configurable base note (octave) (default 48)
+*** TODO feat: selectable configuration file
+*** TODO feat: channel selection by keyboard numbers
+*** TODO ux: right click selects a knob (overlay)
+*** TODO feat: selected knobs should move together
+*** TODO with two selected knobs: should move together in inverse direction if ctrl pressed
+*** TODO with two selected knobs: the second should move (m: default 2) times faster as the first if shift is pressed
+*** TODO with two selected knobs: enable shift+numbers to change m for speed change with shift (1 is 0.5) (0 is 10)
+*** TODO midi input (feedback) (if the knob is changed on the controlled system, the value should be updated even in kimidi)
+*** TODO readme: installation
+*** TODO readme: example with fluidsynth
+*** TODO readme: example with extempore
+*** TODO readme: screenshoots
+*** TODO send to remote repository
+*** TODO mirror on github
+*** DONE buy ice cream
+*** TODO feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
