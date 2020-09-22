@@ -3,6 +3,7 @@ import json
 from functools import partial
 from kivy.app import App
 from kivy.config import Config
+from kivy.cache import Cache
 from kivy.logger import Logger
 from kivy.lang import Builder
 from kivy.core.text import Label as CoreLabel
@@ -16,9 +17,21 @@ from kivy.uix.slider import Slider
 from kivy.graphics import Color, Line, Rectangle, Ellipse
 from kivy.graphics import PushMatrix, PopMatrix
 from kivy.graphics.context_instructions import Rotate
-from kivy.properties import NumericProperty, BoundedNumericProperty, ListProperty, StringProperty
+from kivy.properties import NumericProperty, BoundedNumericProperty, ListProperty, StringProperty, BooleanProperty
 from kivy.garden.knob import Knob
 from mido import Message, open_output
+
+
+# using cache to store global stuff... so dirty :P
+Cache.register('kimidi', timeout=None)
+
+
+def set_channel(chan):
+    Cache.append('kimidi', 'channel', chan)
+
+
+def get_channel():
+    return Cache.get('kimidi', 'channel', 0)
 
 
 base_alpha = .8
@@ -151,7 +164,7 @@ class MidiKnob(Knob):
 
     def on_knob(self, value):
         value = int(value)
-        msg = Message('control_change', control=self.control, channel=0, value=value)
+        msg = Message('control_change', control=self.control, channel=get_channel(), value=value)
         output.send(msg)
         Logger.info(msg)
 
@@ -189,7 +202,7 @@ class BoxSliders(BoxLayout):
         super(BoxSliders, self).__init__(*args, **kwargs)
 
         def __on_value(obj, value):
-            msg = Message('control_change', value=int(value), control=obj.control, channel=0)
+            msg = Message('control_change', value=int(value), control=obj.control, channel=get_channel())
             output.send(msg)
             Logger.info(msg)
 
@@ -220,6 +233,8 @@ class BoxSliders(BoxLayout):
         
 
 class Root(BoxLayout):
+    channel_selection = BooleanProperty(False)
+    channel = NumericProperty(0, min=0, max=127)
     def __init__(self, **kwargs):
         super(Root, self).__init__(**kwargs)
 
@@ -237,14 +252,19 @@ class Root(BoxLayout):
         self._keyboard = None
 
     def on_key_down(self, keyboard, keycode, text, modifiers):
-        if text in keys:
-            msg = Message('note_on', note=keys[text], velocity=64, channel=0)
+        if 'meta' in modifiers and text == 'c':
+            self.channel_selection = True
+        elif self.channel_selection and text and text.isdigit():
+            self.channel_selection = False
+            set_channel(int(text))
+        elif text in keys:
+            msg = Message('note_on', note=keys[text], velocity=64, channel=get_channel())
             Logger.info(msg)
             output.send(msg)
 
     def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
-        if scancode[1] in keys:
-            msg = Message('note_off', note=keys[scancode[1]], velocity=64, channel=0)
+        if scancode[1] in keys and not self.channel_selection:
+            msg = Message('note_off', note=keys[scancode[1]], velocity=64, channel=get_channel())
             Logger.info(msg)
             output.send(msg)
 

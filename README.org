@@ -5,8 +5,9 @@ The energy of midi
 Is a software that acts as a midi controller
 
 ** features
-- fully configurable boxes of knobs and sliders (midi control change (CC))
+- fully configurable boxes of knobs and sliders (midi control change (CC)) (you can choose even the colors!)
 - sends keyboards events (midi ON and midi OFF) (key map shared/like vkeybd)
+- channel selection with C-c n (Control + c, then a number)
 
 ** dependencies
 python3
@@ -66,12 +67,9 @@ using only one analogue synth *syn1* you can use the chan parameter to bind othe
 
 
 ** todos
-*** DONE ui: configurable color of knobs
 *** TODO ui: mapping of feasible values for knob (eg: sine, tri...)
-*** DONE feat: keyboard should send midi_on and note_off
 *** TODO feat: configurable base note (octave) (default 48)
 *** TODO feat: selectable configuration file
-*** TODO feat: channel selection by keyboard numbers
 *** TODO ux: right click selects a knob (overlay)
 *** TODO feat: selected knobs should move together
 *** TODO with two selected knobs: should move together in inverse direction if ctrl pressed
@@ -82,7 +80,5 @@ using only one analogue synth *syn1* you can use the chan parameter to bind othe
 *** TODO readme: example with fluidsynth
 *** TODO readme: example with extempore
 *** TODO readme: screenshoots
-*** TODO send to remote repository
 *** TODO mirror on github
-*** DONE buy ice cream
 *** TODO feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
