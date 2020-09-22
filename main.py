@@ -34,6 +34,27 @@ def get_channel():
     return Cache.get('kimidi', 'channel', 0)
 
 
+def set_note_octave(octave):
+    old = Cache.get('kimidi', 'note_octave', 6 * 8)
+    new = 8 * octave
+    Cache.append('kimidi', 'note_octave', new)
+    keys = get_keys()
+    for k, v in keys.items():
+        keys[k] = v - old + new
+
+
+def get_note_octave():
+    return Cache.get('kimidi', 'note_octave', 6 * 8)
+
+
+def get_keys():
+    return Cache.get('kimidi', 'available_keys', {})
+
+
+def set_keys(dict_):
+    Cache.append('kimidi', 'available_keys', dict_)
+
+
 base_alpha = .8
 colors = {
     'red': [1, 0, 0, base_alpha],
@@ -94,7 +115,7 @@ def parse_vkeybdmap(path):
                 for line in content.split('\n'):
                     c = line[line.index('{') + 1:line.rindex(' ')]
                     v = int(line[line.rindex(' ') + 1:line.index('}')])
-                    available_keys[c] = v + 48
+                    available_keys[c] = v + get_note_octave()
                 return available_keys
         except FileNotFoundError:
             Logger.info(f'{path} not found')
@@ -107,7 +128,7 @@ with open('config.json') as cfg_file:
     config = json.load(cfg_file)
 
 
-keys = parse_vkeybdmap(config.get('vkeydbmap', '~/.vkeybdmap'))
+set_keys(parse_vkeybdmap(config.get('vkeydbmap', '~/.vkeybdmap')))
 
 
 class Knob(Knob):
@@ -230,11 +251,11 @@ class BoxSliders(BoxLayout):
             inner.add_widget(s)
             self.add_widget(inner)
 
-        
 
 class Root(BoxLayout):
     channel_selection = BooleanProperty(False)
-    channel = NumericProperty(0, min=0, max=127)
+    note_octave_selection = BooleanProperty(False)
+
     def __init__(self, **kwargs):
         super(Root, self).__init__(**kwargs)
 
@@ -254,17 +275,25 @@ class Root(BoxLayout):
     def on_key_down(self, keyboard, keycode, text, modifiers):
         if 'meta' in modifiers and text == 'c':
             self.channel_selection = True
-        elif self.channel_selection and text and text.isdigit():
-            self.channel_selection = False
-            set_channel(int(text))
-        elif text in keys:
-            msg = Message('note_on', note=keys[text], velocity=64, channel=get_channel())
+        elif 'meta' in modifiers and text == 'o':
+            self.note_octave_selection = True
+        elif text and text.isdigit():
+            if self.channel_selection:
+                self.channel_selection = False
+                set_channel(int(text))
+            elif self.note_octave_selection:
+                self.note_octave_selection = False
+                set_note_octave(int(text))
+        elif text in get_keys().keys():
+            msg = Message('note_on', note=get_keys()[text], velocity=64, channel=get_channel())
             Logger.info(msg)
             output.send(msg)
 
     def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
-        if scancode[1] in keys and not self.channel_selection:
-            msg = Message('note_off', note=keys[scancode[1]], velocity=64, channel=get_channel())
+        if scancode[1] in get_keys().keys()\
+           and not self.channel_selection\
+           and not self.note_octave_selection:
+            msg = Message('note_off', note=get_keys()[scancode[1]], velocity=64, channel=get_channel())
             Logger.info(msg)
             output.send(msg)
 
