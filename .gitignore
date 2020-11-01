@@ -1,3 +1,7 @@
+# emacs files
+\#*\#
+.\#*
+flycheck_*
 # emacs file that I use to activate virtualenv
 .dir-locals.el
 
