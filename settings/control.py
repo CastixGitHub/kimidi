@@ -3,6 +3,7 @@ from kivy.uix.boxlayout import BoxLayout
 from settings._utils import purge_strings
 from widgets.midiknob import MidiKnob
 from widgets.midislider import midislider
+from widgets.midiselect import midiselect
 
 
 def to_widget(config, name, channel):
@@ -15,19 +16,30 @@ def to_widget(config, name, channel):
     #     panel_name = '.'.join(panel_name.split('.')[:-1])
     #     if not parent_color:
     #         parent_color = config[panel_name]['color']
+    color = config[name]['color'] or parent_color
 
     if config[name]['kind'] == 'knob':
+        try:
+            minimum = int(json.loads(config[name]['values']).get('min', '0'))
+            maximum = int(json.loads(config[name]['values']).get('max', '0'))
+        except json.decoder.JSONDecodeError:
+            minimum = 0
+            maximum = 127
         inner = BoxLayout(orientation='horizontal')
         inner.add_widget(MidiKnob(
             config.output,
             config[name]['text'],
             channel,
             control=int(config[name]['CC']),
-            color=config[name]['color'] or parent_color,
+            color=color,
+            minimum=minimum,
+            maximum=maximum,
         ))
         return inner
     elif config[name]['kind'] == 'slider':
-        return midislider(config, name, channel, config[name]['color'] or parent_color)
+        return midislider(config, name, channel, color)
+    elif config[name]['kind'] == 'select':
+        return midiselect(config, name, channel, color)
 
 
 def setdefaults(config, name):
@@ -36,9 +48,8 @@ def setdefaults(config, name):
         'text': 'label',
         'color': '',
         'kind': 'knob',
-        'minimum': 0,
-        'maximum': 127,
-        'help': ''
+        'values': '{"min": 0, "max": 127}',
+        'help': '',
     })
 
 
@@ -79,18 +90,11 @@ def dumps(panel_names, config):
                     'desc': 'kind of control',  # TODO: i18n
                 },
                 {
-                    'key': 'minimum',
-                    'title': f'{panel_name} - {cn} - Min',
+                    'key': 'values',
+                    'title': f'{panel_name} - cn - Values',
                     'section': section,
-                    'type': 'numeric',
-                    'desc': 'minimum value available',  # TODO: i18n
-                },
-                {
-                    'key': 'maximum',
-                    'title': f'{panel_name} - {cn} - Max',
-                    'section': section,
-                    'type': 'numeric',
-                    'desc': 'maximum value available',  # TODO: i18n
+                    'type': 'string',
+                    'desc': '{"min": 0, "max": 127} for knob or ["sin", "cos", "tri"] for select',
                 },
                 {
                     'key': 'help',
@@ -107,7 +111,7 @@ def dumps(panel_names, config):
                     'title': '',
                     'section': 'general',
                     'type': 'string',
-                    'desc': '',  # used jest as a separator
+                    'desc': '',  # used just as a separator
                 },
             ])
     return json.dumps(controllers)

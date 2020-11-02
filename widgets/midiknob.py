@@ -1,7 +1,5 @@
 from kivy.lang import Builder
 from kivy.logger import Logger
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.boxlayout import BoxLayout
 from kivy.utils import get_color_from_hex
 from kivy.properties import NumericProperty, BoundedNumericProperty, ListProperty, StringProperty
 from kivy.garden.knob import Knob
@@ -59,6 +57,8 @@ class MidiKnob(Knob):
             channel: int,
             control=1,
             color='#ff0000',
+            minimum=0,
+            maximum=127,
             *args,
             **kwargs
     ):
@@ -71,8 +71,8 @@ class MidiKnob(Knob):
         self.control = control
         self.color = get_color_from_hex(color)
         self.size = (60, 60)
-        self.min = 0
-        self.max = kwargs.get('max', 127)
+        self.min = minimum
+        self.max = maximum
         self.step = 1
         self.value = 0
         self.knobimg_source = "img/ugly_knob.png"

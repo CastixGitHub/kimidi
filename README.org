@@ -82,3 +82,7 @@ using only one analogue synth *syn1* you can use the chan parameter to bind othe
 *** TODO readme: screenshoots
 *** TODO mirror on github
 *** TODO feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
+
+** contributing
+set git hooks to run flake8 before commit
+`git config core.hooksPath .githooks/`

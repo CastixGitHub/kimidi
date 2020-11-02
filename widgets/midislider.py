@@ -1,3 +1,4 @@
+import json
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
 from kivy.uix.boxlayout import BoxLayout
@@ -14,11 +15,20 @@ def _on_value(obj, value):
 
 def midislider(config, name, channel, color):
     inner = BoxLayout(orientation='vertical')
+    try:
+        minimum = int(json.loads(config[name]['values']).get('min', '0'))
+        maximum = int(json.loads(config[name]['values']).get('max', '0'))
+    except json.decoder.JSONDecodeError:
+        minimum = 0
+        maximum = 127
+
+    color = get_color_from_hex(config[name]['color'])
+
     s = Slider(
-        range=(config[name]['minimum'], config[name]['maximum']),
+        range=(minimum, maximum),
         value=config[name].get('default', 100),
         value_track=True,
-        value_track_color=get_color_from_hex(config[name]['color']),
+        value_track_color=color,
         value_track_width=4,
         orientation='vertical',
         background_width=0,
@@ -32,7 +42,7 @@ def midislider(config, name, channel, color):
 
     text = config[name]['text'] if config[name]['text'] != 'label' else name  # exclude default
     inner.add_widget(Label(
-        text=f"[color={get_color_from_hex(color)}]{text}[/color]",
+        text=f"[color={color}]{text}[/color]",
         size_hint=(1, 0.05),
         markup=True,
     ))

@@ -29,4 +29,3 @@ def controllers(config):
         for cn in purge_strings(config.get(f'panel {panel_name}', 'controls').split(',')):
             names.extend([f'control.{cn}:{panel_name}'])
     return names
-

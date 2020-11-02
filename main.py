@@ -32,7 +32,7 @@ class Root(FloatLayout):
             screen = Screen(name=channel_name)
             screen.add_widget(Main(app, channel_name, **kwargs))
             self.app.sm.add_widget(screen)
-        
+
         self.add_widget(self.app.sm)
         self.render()
 
