@@ -34,6 +34,7 @@ def midislider(config, name, channel, color):
         background_width=0,
         padding=25,
         cursor_size=[0, 0],
+        size_hint=(1, 0.95),
     )
     s.control = int(config[name]['CC'])
     s.mido_output = config.output
@@ -41,10 +42,13 @@ def midislider(config, name, channel, color):
     s.bind(value=_on_value)
 
     text = config[name]['text'] if config[name]['text'] != 'label' else name  # exclude default
+    print(color, text)
     inner.add_widget(Label(
         text=f"[color={color}]{text}[/color]",
         size_hint=(1, 0.05),
         markup=True,
+        text_size=(60, 20),
+        
     ))
     inner.add_widget(s)
     return inner

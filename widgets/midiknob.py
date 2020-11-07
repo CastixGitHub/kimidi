@@ -81,7 +81,7 @@ class MidiKnob(Knob):
         self.scrolling_step = 4
 
     def on_pos(self, obj, pos):
-        self.label_pos = [pos[0] + obj.width + 15, pos[1] + obj.height / 2]
+        self.label_pos = [pos[0], pos[1] + obj.height]
 
     def on_knob(self, value):
         value = int(value)
