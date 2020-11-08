@@ -1,13 +1,18 @@
-from kivy.lang import Builder
-from kivy.logger import Logger
-from kivy.app import App
-from kivy.uix.settings import SettingsWithSidebar
-from kivy.uix.gridlayout import GridLayout
-from kivy.uix.floatlayout import FloatLayout
-from kivy.uix.screenmanager import ScreenManager, Screen
-from mido import open_output
-
-import settings
+"""KiMidi application entry point"""
+# pylint: disable=wrong-import-position
+import os
+import argparse
+os.environ["KIVY_NO_ARGS"] = "1"
+from kivy.lang import Builder  # noqa: E402
+from kivy.logger import Logger  # noqa: E402
+from kivy.app import App  # noqa: E402
+from kivy.uix.settings import SettingsWithSidebar  # noqa: E402
+from kivy.uix.gridlayout import GridLayout  # noqa: E402
+from kivy.uix.floatlayout import FloatLayout  # noqa: E402
+from kivy.uix.screenmanager import ScreenManager, Screen  # noqa: E402
+from kivy.uix.button import Button
+from mido import open_output  # noqa: E402
+import settings  # noqa: E402
 
 output = open_output()
 
@@ -27,19 +32,37 @@ class Root(FloatLayout):
     def __init__(self, app, **kwargs):
         super().__init__(**kwargs)
         self.app = app
-        for channel_name in settings.names_of.channels(app.config):
-            Logger.info('kimidi.root: adding channel %s', channel_name)
-            screen = Screen(name=channel_name)
-            screen.add_widget(Main(app, channel_name, **kwargs))
-            self.app.sm.add_widget(screen)
-
         self.add_widget(self.app.sm)
         self.render()
 
+    def init_screens(self):
+        current = self.app.sm.current
+        self.app.sm.clear_widgets()
+        for channel_name in settings.names_of.channels(self.app.config):
+            Logger.info('kimidi.root: adding channel %s', channel_name)
+            screen = Screen(name=channel_name)
+            screen.add_widget(Main(self.app, channel_name))  # kwargs should be passed
+            self.app.sm.add_widget(screen)
+        if len(settings.names_of.channels(self.app.config)) == 0:
+            Logger.warning(
+                'kimidi.root: your config is empty,'
+                ' use --config-file option or go to'
+                ' settings and create a channel to start with'
+            )
+            empty_screen = Screen(name='KIMIDI Empty Config')
+            btn = Button(text='Settings', font_size=48, on_release=self.app.open_settings)
+            btn.render = lambda: 0
+            empty_screen.add_widget(btn)
+            self.app.sm.add_widget(empty_screen)
+
+        if current in self.app.sm.screen_names:
+            self.app.sm.current = current
+
     def render(self):
-        # assuming there is only main widget inside a screen
+        # assuming there is only one Main widget inside a screen
+        self.init_screens()
         main = self.app.sm.current_screen.children[0]
-        main.channel_name = self.app.sm.current
+        # main.channel_name = self.app.sm.current
         main.render()
 
 
@@ -79,6 +102,15 @@ class Main(GridLayout):
 
 class KiMidiApp(App):
     settings = None
+
+    def __init__(self, args=None, **kw):
+        self.args = args
+        super().__init__(**kw)
+
+    def get_application_config(self):
+        return super().get_application_config(
+            f'%(appdir)s/{self.args.config_file}.ini'
+        )
 
     def build(self):
         self.settings_cls = SettingsWithSidebar
@@ -142,4 +174,6 @@ class KiMidiApp(App):
 
 
 if __name__ == '__main__':
-    KiMidiApp().run()
+    parser = argparse.ArgumentParser()
+    parser.add_argument('--config-file', '-c', default='kimidi', help='config file (without .ini extension) that holds panels etc, defaults to kimidi')
+    KiMidiApp(args=parser.parse_args()).run()

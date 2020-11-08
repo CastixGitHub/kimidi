@@ -1,4 +1,5 @@
 import json
+from kivy.logger import Logger
 from kivy.uix.boxlayout import BoxLayout
 from settings._utils import purge_strings
 from widgets.midiknob import MidiKnob
@@ -16,7 +17,12 @@ def to_widget(config, name, channel):
     #     panel_name = '.'.join(panel_name.split('.')[:-1])
     #     if not parent_color:
     #         parent_color = config[panel_name]['color']
-    color = config[name]['color'] or parent_color
+    try:
+        color = config[name]['color'] or parent_color
+    except KeyError:
+        Logger.exception('kimidi.settings.control: no %s configured', name)
+        color = parent_color
+        setdefaults(config, name)
 
     if config[name]['kind'] == 'knob':
         try:
@@ -36,9 +42,9 @@ def to_widget(config, name, channel):
             maximum=maximum,
         ))
         return inner
-    elif config[name]['kind'] == 'slider':
+    if config[name]['kind'] == 'slider':
         return midislider(config, name, channel, color)
-    elif config[name]['kind'] == 'select':
+    if config[name]['kind'] == 'select':
         return midiselect(config, name, channel, color)
 
 

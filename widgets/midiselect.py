@@ -50,15 +50,15 @@ class RadioButton(ToggleButtonBehavior, StackLayout):
         self.control = control
         self.disable = False  # not disabled, that, would turn the color into black
 
-        def on_active(checkbox, _value):
+        def on_active(_, _value):
             Logger.info(
-                'kimidi.midiselect: '
-                + 'checkbox: ' + value[0] + ' '
-                + ('ENABLED' if _value else 'DISABLED'),
+                'kimidi.midiselect: checkbox: %s state: %s',
+                value[0],
+                'ENABLED' if _value else 'DISABLED',
             )
             if _value and not self.disable:
                 msg = Message('control_change', control=self.control, channel=self.channel, value=self.value)
-                #Logger.info(msg)
+                Logger.info(msg)
                 self.mido_output.send(msg)
                 self.disable = True
             else:
