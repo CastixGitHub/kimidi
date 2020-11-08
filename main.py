@@ -40,6 +40,7 @@ class Root(FloatLayout):
         super().__init__(**kwargs)
         self.app = app
         self.add_widget(self.app.sm)
+        self.app.cm.note_octave = int(self.app.config.get('general', 'base_octave'))
         self._keyboard = None  # will be initialized by init_screens called by render...
         self.render()
 
@@ -105,14 +106,18 @@ class Root(FloatLayout):
                 self.note_octave_selection = False
                 self.app.cm.note_octave = int(text)
         elif text in self.app.cm.keys.keys():
-            msg = Message('note_on', note=self.app.cm.keys[text], velocity=64, channel=self.app.cm.channel)
-            Logger.info(msg)
-            output.send(msg)
+            if text not in self.app.cm.active_notes:
+                self.app.cm.activate_note(text)
+                msg = Message('note_on', note=self.app.cm.keys[text],
+                              velocity=64, channel=self.app.cm.channel)
+                Logger.info(msg)
+                output.send(msg)
 
     def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
         if scancode[1] in self.app.cm.keys.keys()\
            and not self.channel_selection\
            and not self.note_octave_selection:
+            self.app.cm.release_note(scancode[1])
             msg = Message('note_off', note=self.app.cm.keys[scancode[1]], velocity=64, channel=self.app.cm.channel)
             Logger.info(msg)
             output.send(msg)
@@ -225,6 +230,9 @@ class KiMidiApp(App):
 
         if rebuild:
             self.build_settings(self.settings)
+
+        if section == 'general' and key == 'base_octave':
+            self.cm.note_octave = int(value)
 
         self.root.render()
 

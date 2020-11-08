@@ -45,3 +45,16 @@ class CacheManager(metaclass=Singleton):
         for k, v in keys.items():
             keys[k] = v - old + new
         self.keys = keys
+
+    @property
+    def active_notes(self):  # should be separated by channel?
+        return Cache.get('kimidi', 'active_notes', [])
+
+    def activate_note(self, note):
+        notes = Cache.get('kimidi', 'active_notes', [])
+        notes.append(note)
+        Cache.append('kimidi', 'active_notes', notes)
+
+    def release_note(self, note):
+        notes = Cache.get('kimidi', 'active_notes', [])
+        Cache.append('kimidi', 'active_notes', [n for n in notes if n != note])
