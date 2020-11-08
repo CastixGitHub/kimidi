@@ -5,12 +5,12 @@ from kivy.logger import Logger
 from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
-from kivy.uix.label import Label
 from kivy.properties import BooleanProperty, StringProperty, NumericProperty
 from mido import Message
 
 
 Builder.load_string("""
+#:import get_color_from_hex kivy.utils.get_color_from_hex
 <RadioButton@StackLayout>:
     CheckBox:
         id: check
@@ -18,6 +18,7 @@ Builder.load_string("""
         size_hint_x: None
         width: 30
         height: 15
+        color: get_color_from_hex(root.color)
     Label:
         id: lab
         text: root.text
@@ -47,13 +48,29 @@ class RadioButton(ToggleButtonBehavior, StackLayout):
         self.text = f'[color={self.color}]{value[0]}[/color]'
         self.channel = channel
         self.control = control
+        self.disable = False  # not disabled, that, would turn the color into black
 
-        def on_active(checkbox, value):
-            if value:
+        def on_active(checkbox, _value):
+            Logger.info(
+                'kimidi.midiselect: '
+                + 'checkbox: ' + value[0] + ' '
+                + ('ENABLED' if _value else 'DISABLED'),
+            )
+            if _value and not self.disable:
                 msg = Message('control_change', control=self.control, channel=self.channel, value=self.value)
-                print(msg)
+                #Logger.info(msg)
                 self.mido_output.send(msg)
-        self.ids['check'].bind(active=on_active)
+                self.disable = True
+            else:
+                self.disable = False
+
+        self.ids.check.bind(active=on_active)
+
+        def on_label_click(touch):
+            if self.ids.lab.collide_point(touch.x, touch.y):
+                self.ids.check._do_press()
+
+        self.ids.lab.on_touch_down = on_label_click
 
 
 Builder.load_string("""
@@ -71,6 +88,7 @@ Builder.load_string("""
 
 class RadioButtonGroup(BoxLayout):
     text = StringProperty('radiogroup')
+
     def __init__(self, text, values, channel, color, output, cc, **kwargs):
         super().__init__(**kwargs)
         self.text = text

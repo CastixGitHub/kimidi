@@ -2,7 +2,7 @@ import json
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
 from kivy.uix.boxlayout import BoxLayout
-from kivy.utils import get_color_from_hex
+from kivy.utils import get_color_from_hex, get_hex_from_color
 from kivy.logger import Logger
 from mido import Message
 
@@ -42,13 +42,10 @@ def midislider(config, name, channel, color):
     s.bind(value=_on_value)
 
     text = config[name]['text'] if config[name]['text'] != 'label' else name  # exclude default
-    print(color, text)
     inner.add_widget(Label(
-        text=f"[color={color}]{text}[/color]",
+        text=f"[color={get_hex_from_color(color)}]{text}[/color]",
         size_hint=(1, 0.05),
         markup=True,
-        text_size=(60, 20),
-        
     ))
     inner.add_widget(s)
     return inner
