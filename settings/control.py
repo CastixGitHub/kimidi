@@ -24,6 +24,10 @@ def to_widget(config, name, channel):
         color = parent_color
         setdefaults(config, name)
 
+    text = config[name]['text']
+    if text == 'label':  # skip the default one, getting it from the panel
+        text = name.split(':')[0].split('.')[1]
+
     if config[name]['kind'] == 'knob':
         try:
             minimum = int(json.loads(config[name]['values']).get('min', '0'))
@@ -34,7 +38,7 @@ def to_widget(config, name, channel):
         inner = BoxLayout(orientation='horizontal')
         inner.add_widget(MidiKnob(
             config.output,
-            config[name]['text'],
+            text,
             channel,
             control=int(config[name]['CC']),
             color=color,
@@ -78,7 +82,8 @@ def dumps(panel_names, config):
                     'title': f'{panel_name} - {cn} - Text',
                     'section': section,
                     'type': 'string',
-                    'desc': 'short label that will appear within the widget',
+                    'desc': 'short label that will appear above the widget,'
+                            ' if is "label" will use the id used in the panel that generated this',
                 },
                 {
                     'key': 'color',
@@ -100,7 +105,7 @@ def dumps(panel_names, config):
                     'title': f'{panel_name} - cn - Values',
                     'section': section,
                     'type': 'string',
-                    'desc': '{"min": 0, "max": 127} for knob or ["sin", "cos", "tri"] for select',
+                    'desc': '{"min": 0, "max": 127} for knob or {"sin": 0, "cos": 1, "tri": 2} for select (json format)',
                 },
                 {
                     'key': 'help',
