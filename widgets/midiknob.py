@@ -5,6 +5,8 @@ from kivy.properties import NumericProperty, BoundedNumericProperty, ListPropert
 from kivy.garden.knob import Knob
 from mido import Message
 
+from widgets.midicontrol import midieditable
+
 
 class Knob(Knob):
     scrolling_sensitivity = NumericProperty(0)
@@ -47,6 +49,7 @@ Builder.load_string("""
 class MidiKnob(Knob):
     control = BoundedNumericProperty(0, min=0, max=127)
     color = ListProperty(defaultvalue=[0, 0, 0, 0])
+    name = StringProperty()
     text = StringProperty('n/a')
     label_pos = ListProperty(defaultvalue=[0, 0])
 
@@ -64,6 +67,7 @@ class MidiKnob(Knob):
     ):
         super().__init__(*args, **kwargs)
         self.output = mido_output
+        self.name = text
         self.text = text
         self.channel = channel
         self.bind(pos=self.on_pos)
@@ -83,8 +87,17 @@ class MidiKnob(Knob):
     def on_pos(self, obj, pos):
         self.label_pos = [pos[0], pos[1] + obj.height]
 
+    @midieditable
+    def update_angle(self, touch):
+        # override to add decorator that prevents angle to be updated
+        super().update_angle(touch)
+
+    @midieditable
     def on_knob(self, value):
         value = int(value)
         msg = Message('control_change', control=self.control, channel=self.channel, value=value)
         self.output.send(msg)
         Logger.info(msg)
+
+    def __str__(self):
+        return f'Knob: {self.name}'

@@ -20,18 +20,6 @@ import cache_manager as cm  # noqa: E402
 output = open_output()
 
 
-Builder.load_string("""
-<Root>:
-    Button:
-        text: 'settings'
-        font_size: 20
-        pos: [root.width - self.width - 10, root.height - self.height - 10]
-        size_hint: None, None
-        size: 80, 30
-        on_release: app.open_settings()
-""", filename='Root.kv')
-
-
 class Root(FloatLayout):
     channel_selection = BooleanProperty(False)
     note_octave_selection = BooleanProperty(False)
@@ -213,7 +201,7 @@ class KiMidiApp(App):
                 data=settings.panel.dumps(name=panel_name),
             )
         _settings.add_json_panel(
-            'Controls',
+            'Controls (do not use this, use edit mode instead (C-e and click a control))',
             self.config,
             data=settings.control.dumps(settings.names_of.panels(self.config), self.config)
         )
@@ -264,5 +252,22 @@ class KiMidiApp(App):
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config-file', '-c', default='kimidi', help='config file (without .ini extension) that holds panels etc, defaults to kimidi')
+    parser.add_argument(
+        '--config-file',
+        '-c',
+        default='kimidi',
+        help='config file (without .ini extension) that holds panels etc, defaults to kimidi',
+    )
+
+    Builder.load_string("""
+<Root>:
+    Button:
+        text: 'settings'
+        font_size: 20
+        pos: [root.width - self.width - 10, root.height - self.height - 10]
+        size_hint: None, None
+        size: 80, 30
+        on_release: app.open_settings()
+""", filename='Root.kv')
+
     KiMidiApp(args=parser.parse_args()).run()

@@ -68,53 +68,8 @@ def dumps(panel_names, config):
     for panel_name in panel_names:
         controllers_names = purge_strings(config.get(f'panel {panel_name}', 'controls').split(','))
         for cn in controllers_names:
-            section = f'control.{cn}:{panel_name}'
-            controllers.extend([
-                {
-                    'key': 'cc',
-                    'title': f'{panel_name} - {cn} - CC',
-                    'section': section,
-                    'type': 'numeric',
-                    'desc': 'from 0 to 127 MIDI Control Change to be sent',
-                },
-                {
-                    'key': 'text',
-                    'title': f'{panel_name} - {cn} - Text',
-                    'section': section,
-                    'type': 'string',
-                    'desc': 'short label that will appear above the widget,'
-                            ' if is "label" will use the id used in the panel that generated this',
-                },
-                {
-                    'key': 'color',
-                    'title': f'{panel_name} - {cn} - Color',
-                    'section': section,
-                    'type': 'string',
-                    'desc': 'rgb color like #ff00ee are well accepted',  # TODO: i18n
-                },
-                {
-                    'key': 'kind',
-                    'title': f'{panel_name} - {cn} - Kind',
-                    'section': section,
-                    'type': 'options',
-                    'options': ['knob', 'slider', 'select', 'button'],
-                    'desc': 'kind of control',  # TODO: i18n
-                },
-                {
-                    'key': 'values',
-                    'title': f'{panel_name} - cn - Values',
-                    'section': section,
-                    'type': 'string',
-                    'desc': '{"min": 0, "max": 127} for knob or {"sin": 0, "cos": 1, "tri": 2} for select (json format)',
-                },
-                {
-                    'key': 'help',
-                    'title': f'{panel_name} - {cn} - Help',
-                    'section': section,
-                    'type': 'string',
-                    'desc': 'tooltip that will appear when you forget what does this CC',  # TODO: i18n
-                },
-            ])
+            # TODO: fix useless json encoding/decoding
+            controllers.extend(json.loads(dumps_single(panel_name, cn, f'{panel_name} - {cn} - ')))  
         if len(controllers_names):
             controllers.extend([
                 {
@@ -126,3 +81,54 @@ def dumps(panel_names, config):
                 },
             ])
     return json.dumps(controllers)
+
+
+def dumps_single(panel, name, titles_prefix=''):
+    section = f'control.{name}:{panel}'
+    controller = [
+        {
+            'key': 'cc',
+            'title': f'{titles_prefix}CC',
+            'section': section,
+            'type': 'numeric',
+            'desc': 'from 0 to 127 MIDI Control Change to be sent',
+        },
+        {
+            'key': 'text',
+            'title': f'{titles_prefix}Text',
+            'section': section,
+            'type': 'string',
+            'desc': 'short label that will appear above the widget,'
+                    ' if is "label" will use the id used in the panel that generated this',
+        },
+        {
+            'key': 'color',
+            'title': f'{titles_prefix}Color',
+            'section': section,
+            'type': 'string',
+            'desc': 'rgb color like #ff00ee are well accepted',  # TODO: i18n
+        },
+        {
+            'key': 'kind',
+            'title': f'{titles_prefix}Kind',
+            'section': section,
+            'type': 'options',
+            'options': ['knob', 'slider', 'select', 'button'],
+            'desc': 'kind of control',  # TODO: i18n
+        },
+        {
+            'key': 'values',
+            'title': f'{titles_prefix}Values',
+            'section': section,
+            'type': 'string',
+            'desc': '{"min": 0, "max": 127} for knob or {"sin": 0, "cos": 1, "tri": 2} for select (json format)',
+        },
+        {
+            'key': 'help',
+            'title': f'{titles_prefix}Help',
+            'section': section,
+            'type': 'string',
+            'desc': 'tooltip that will appear when you forget what does this CC',  # TODO: i18n
+        },
+    ]
+    return json.dumps(controller)

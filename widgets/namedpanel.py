@@ -28,6 +28,7 @@ Builder.load_string("""
 
 
 class NamedPanel(GridLayout):
+    name = None
     name_label = None
     border_color = ListProperty(defaultvalue=[1, 1, 1, 1])
     name_color = ListProperty(default_value=[1, 1, 1, 1])
@@ -42,6 +43,7 @@ class NamedPanel(GridLayout):
             **kwargs
     ):
         # draw text: name of the panel. must be done before super
+        self.name = name
         self.name_label = CoreLabel(text=name, font_size=16)
         self.name_label.refresh()
         self.name_label = self.name_label.texture
@@ -64,3 +66,6 @@ class NamedPanel(GridLayout):
         while len(self.children) > self.rows * self.cols:
             Logger.warning(f'adding 1 row to NamedPanel {name}')
             self.rows += 1
+
+    def __str__(self):
+        return self.name
