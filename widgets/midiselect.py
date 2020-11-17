@@ -1,5 +1,6 @@
 import json
 from uuid import uuid4
+from kivy.app import App
 from kivy.lang import Builder
 from kivy.logger import Logger
 from kivy.uix.behaviors import ToggleButtonBehavior
@@ -39,10 +40,10 @@ class RadioButton(ToggleButtonBehavior, StackLayout):
     uuid = StringProperty()
     value = NumericProperty()
 
-    def __init__(self, value, channel, color, output, control, *a, **kw):
+    def __init__(self, value, channel, color, control, *a, **kw):
         self.uuid = kw.pop('uuid')
         super().__init__(*a, **kw)
-        self.mido_output = output
+        self.mido_output = App.get_running_app().cm.output
         self.color = color.replace('#', '')
         self.value = value[1]
         self.text = f'[color={self.color}]{value[0]}[/color]'
@@ -89,13 +90,13 @@ Builder.load_string("""
 class RadioButtonGroup(BoxLayout):
     text = StringProperty('radiogroup')
 
-    def __init__(self, text, values, channel, color, output, cc, **kwargs):
+    def __init__(self, text, values, channel, color, cc, **kwargs):
         super().__init__(**kwargs)
         self.text = text
         uuid = str(uuid4())
         for value in values.items():
             self.add_widget(
-                RadioButton(value, channel, color, output, cc, uuid=uuid),
+                RadioButton(value, channel, color, cc, uuid=uuid),
             )
 
 
@@ -111,6 +112,5 @@ def midiselect(config, name, channel, color):
             values,
             channel,
             color,
-            config.output,
             int(config[name]['CC']),
         )

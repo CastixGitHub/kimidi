@@ -1,3 +1,4 @@
+from kivy.app import App
 from kivy.lang import Builder
 from kivy.logger import Logger
 from kivy.utils import get_color_from_hex
@@ -55,7 +56,6 @@ class MidiKnob(Knob):
 
     def __init__(
             self,
-            mido_output,
             text,
             channel: int,
             control=1,
@@ -66,7 +66,7 @@ class MidiKnob(Knob):
             **kwargs
     ):
         super().__init__(*args, **kwargs)
-        self.output = mido_output
+        self.output = App.get_running_app().cm.output
         self.name = text
         self.text = text
         self.channel = channel

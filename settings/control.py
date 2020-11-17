@@ -37,7 +37,6 @@ def to_widget(config, name, channel):
             maximum = 127
         inner = BoxLayout(orientation='horizontal')
         inner.add_widget(MidiKnob(
-            config.output,
             text,
             channel,
             control=int(config[name]['CC']),

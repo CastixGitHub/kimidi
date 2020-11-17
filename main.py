@@ -6,43 +6,34 @@ os.environ["KIVY_NO_ARGS"] = "1"
 from kivy.lang import Builder  # noqa: E402
 from kivy.logger import Logger  # noqa: E402
 from kivy.app import App  # noqa: E402
-from kivy.core.window import Window  # noqa: E402
 from kivy.uix.settings import SettingsWithSidebar  # noqa: E402
 from kivy.uix.gridlayout import GridLayout  # noqa: E402
 from kivy.uix.floatlayout import FloatLayout  # noqa: E402
-from kivy.uix.screenmanager import ScreenManager, Screen, SlideTransition  # noqa: E402
+from kivy.uix.screenmanager import ScreenManager, Screen  # noqa: E402
 from kivy.uix.button import Button  # noqa: E402
-from kivy.properties import BooleanProperty  # noqa: E402
-from mido import open_output, Message  # noqa: E402
 import settings  # noqa: E402
+from modes import KeyboardAdapter  # noqa: E402
 import cache_manager as cm  # noqa: E402
 
-output = open_output()
 
-
-class Root(FloatLayout):
-    channel_selection = BooleanProperty(False)
-    note_octave_selection = BooleanProperty(False)
-
-    def __init__(self, app, **kwargs):
+class Root(FloatLayout, KeyboardAdapter):
+    def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        self.app = app
+        self.app = App.get_running_app()
         self.add_widget(self.app.sm)
         self.app.cm.note_octave = int(self.app.config.get('general', 'base_octave'))
-        self._keyboard = None  # will be initialized by init_screens called by render...
         self.render()
 
     def init_screens(self):
         # also setup the keyboard, as can be closed by the settings
-        self._keyboard = Window.request_keyboard(self._keyboard_closed, self)
-        self._keyboard.bind(on_key_down=self.on_key_down, on_key_up=self.on_key_up)
-
+        self.setup_keyboard()
+        
         current = self.app.sm.current
         self.app.sm.clear_widgets()
         for channel_name in settings.names_of.channels(self.app.config):
             Logger.info('kimidi.root: adding channel %s', channel_name)
             screen = Screen(name=channel_name)
-            screen.add_widget(Main(self.app, channel_name))  # kwargs should be passed
+            screen.add_widget(Main(channel_name))  # kwargs should be passed
             self.app.sm.add_widget(screen)
         if len(settings.names_of.channels(self.app.config)) == 0:
             Logger.warning(
@@ -66,59 +57,15 @@ class Root(FloatLayout):
         # main.channel_name = self.app.sm.current
         main.render()
 
-    def _keyboard_closed(self):
-        self._keyboard.unbind(on_key_down=self.on_key_down, on_key_up=self.on_key_up)
-        self._keyboard = None
-
-    def on_key_down(self, keyboard, keycode, text, modifiers):
-        if 'meta' in modifiers and text == 'c':
-            self.channel_selection = True
-        elif 'meta' in modifiers and text == 'o':
-            self.note_octave_selection = True
-        elif text and text.isdigit():
-            if self.channel_selection:
-                print('intention to switch to channel ' + text)
-                self.channel_selection = False
-                old = self.app.cm.channel
-                if old != int(text):
-                    self.app.sm.transition = SlideTransition(
-                        direction='right' if old - int(text) > 0 else 'left'
-                    )
-                    for i, ch_name in enumerate(self.app.sm.screen_names):
-                        ch_number = int(self.app.config[f'channel {ch_name}']['number'])
-                        if ch_number == int(text):
-                            Logger.info('kimidi.root: switch to channel: %s number: %s', ch_name, ch_number)
-                            self.app.cm.channel = int(text)
-                            self.app.sm.current = self.app.sm.screen_names[i]
-            elif self.note_octave_selection:
-                self.note_octave_selection = False
-                self.app.cm.note_octave = int(text)
-        elif text in self.app.cm.keys.keys():
-            if text not in self.app.cm.active_notes:
-                self.app.cm.activate_note(text)
-                msg = Message('note_on', note=self.app.cm.keys[text],
-                              velocity=64, channel=self.app.cm.channel)
-                Logger.info(msg)
-                output.send(msg)
-
-    def on_key_up(self, key, scancode=None, codepoint=None, modifier=None, **kwargs):
-        if scancode[1] in self.app.cm.keys.keys()\
-           and not self.channel_selection\
-           and not self.note_octave_selection:
-            self.app.cm.release_note(scancode[1])
-            msg = Message('note_off', note=self.app.cm.keys[scancode[1]], velocity=64, channel=self.app.cm.channel)
-            Logger.info(msg)
-            output.send(msg)
-
 
 class Main(GridLayout):
     padding = [5, 5, 5, 5]
     spacing = [5, 5]
 
-    def __init__(self, app, channel_name, **kwargs):
+    def __init__(self, channel_name, **kwargs):
         super().__init__(**kwargs)
-        self.app = app
-        self.config = app.config
+        self.app = App.get_running_app()
+        self.config = self.app.config
         self.channel_name = channel_name
         self.render()
 
@@ -154,7 +101,7 @@ class KiMidiApp(App):
         super().__init__(**kw)
         self.args = args
 
-    def get_application_config(self):
+    def get_application_config(self, _defaultpath=None):
         return super().get_application_config(
             f'%(appdir)s/{self.args.config_file}.ini'
         )
@@ -165,11 +112,10 @@ class KiMidiApp(App):
         self.sm = ScreenManager()
         self.cm = cm.CacheManager()
         self.cm.keys = self.parse_vkeybdmap()
-        self.root = Root(self)
+        self.root = Root()
         return self.root
 
     def build_config(self, config):
-        config.output = output
         settings.general.setdefaults(config)
         for name in settings.names_of.channels(config):
             settings.channel.setdefaults(config, name)

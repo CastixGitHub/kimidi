@@ -1,4 +1,7 @@
 from kivy.cache import Cache
+from kivy.logger import Logger
+from mido import open_output
+import modes
 
 
 class Singleton(type):
@@ -14,6 +17,24 @@ class Singleton(type):
 class CacheManager(metaclass=Singleton):
     def __init__(self):
         Cache.register('kimidi', timeout=None)
+        Cache.append('kimidi', 'mido_output', open_output())
+
+    @property
+    def major_mode(self):
+        name = Cache.get('kimidi', 'major_mode', 'fundamental')
+        try:
+            return getattr(modes, name)
+        except AttributeError:
+            Logger.error('kimidi.cache_manager: add mode {name} in modes/__init__.py')
+            return getattr(modes, 'fundamental')
+
+    @major_mode.setter
+    def major_mode(self, name):
+        Cache.append('kimidi', 'major_mode', name)
+
+    @property
+    def output(self):
+        return Cache.get('kimidi', 'mido_output')
 
     @property
     def channel(self):

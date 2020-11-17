@@ -1,4 +1,5 @@
 import json
+from kivy.app import App
 from kivy.uix.label import Label
 from kivy.uix.slider import Slider
 from kivy.uix.boxlayout import BoxLayout
@@ -37,7 +38,7 @@ def midislider(config, name, channel, color):
         size_hint=(1, 0.95),
     )
     s.control = int(config[name]['CC'])
-    s.mido_output = config.output
+    s.mido_output = App.get_running_app().cm.output
     s.channel = channel
     s.bind(value=_on_value)
 
