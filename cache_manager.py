@@ -33,6 +33,28 @@ class CacheManager(metaclass=Singleton):
         Cache.append('kimidi', 'major_mode', name)
 
     @property
+    def minor_modes_names(self):
+        return Cache.get('kimidi', 'minor_modes', [])
+
+    @minor_modes_names.setter
+    def minor_modes_names(self, names):
+        Cache.append('kimidi', 'minor_modes', names)
+
+    @property
+    def minor_modes(self):
+        return [getattr(modes, name) for name in self.minor_modes_names]
+
+    def toggle_minor_mode(self, name, force=None):
+        names = self.minor_modes_names
+        was_there = name in names
+        if not was_there or force == 1:
+            names.append(name)
+        if was_there or force == 0:
+            names.remove(name)
+        self.minor_modes_names = list(set(names))
+        return name in self.minor_modes_names
+
+    @property
     def output(self):
         return Cache.get('kimidi', 'mido_output')
 
@@ -72,10 +94,18 @@ class CacheManager(metaclass=Singleton):
         return Cache.get('kimidi', 'active_notes', [])
 
     def activate_note(self, note):
-        notes = Cache.get('kimidi', 'active_notes', [])
-        notes.append(note)
-        Cache.append('kimidi', 'active_notes', notes)
+        """Returns False if the note was already active"""
+        notes = self.active_notes
+        if note not in notes:
+            notes.append(note)
+            Cache.append('kimidi', 'active_notes', notes)
+            return True
+        return False
 
     def release_note(self, note):
-        notes = Cache.get('kimidi', 'active_notes', [])
-        Cache.append('kimidi', 'active_notes', [n for n in notes if n != note])
+        """Returns True if the note was active"""
+        notes = self.active_notes
+        if note in notes:
+            Cache.append('kimidi', 'active_notes', [n for n in notes if n != note])
+            return True
+        return False
