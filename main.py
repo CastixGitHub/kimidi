@@ -6,7 +6,7 @@ os.environ["KIVY_NO_ARGS"] = "1"
 from kivy.lang import Builder  # noqa: E402
 from kivy.logger import Logger  # noqa: E402
 from kivy.app import App  # noqa: E402
-from kivy.uix.settings import SettingsWithSidebar  # noqa: E402
+from kivy.uix.settings import Settings  # noqa: E402
 from kivy.uix.gridlayout import GridLayout  # noqa: E402
 from kivy.uix.floatlayout import FloatLayout  # noqa: E402
 from kivy.uix.screenmanager import ScreenManager, Screen  # noqa: E402
@@ -107,7 +107,7 @@ class KiMidiApp(App):
         )
 
     def build(self):
-        self.settings_cls = SettingsWithSidebar
+        self.settings_cls = Settings
         self.use_kivy_settings = False
         self.sm = ScreenManager()
         self.cm = cm.CacheManager()
@@ -126,6 +126,7 @@ class KiMidiApp(App):
 
     def build_settings(self, _settings):
         self.settings = _settings  # so can be used on_config_change
+        self.settings.bind(on_close=self.on_settings_close)
         _settings.remove_widget(_settings.interface)  # resetting all settins panels widgets
         _settings.add_interface()  # reset all settings panels creating a new interface
         self.build_config(self.config)  # set defaults
@@ -168,11 +169,12 @@ class KiMidiApp(App):
         if section == 'general' and key == 'base_octave':
             self.cm.note_octave = int(value)
 
+    def on_settings_close(self, *args):
         self.root.render()
 
     def parse_vkeybdmap(self):  # if you move this, change also __file__ below
         """If you wish you can share the same keyboard mapping of vkeyboard.
-        This works even without vkeybd installed. but you should take care of locale"""
+        This works even without vkeybd installed. You should take care of locale"""
         available_keys = {}
         locations = [
             self.config.get('general', 'vkeybd_keymap_path'),

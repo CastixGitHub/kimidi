@@ -9,6 +9,8 @@ from kivy.uix.stacklayout import StackLayout
 from kivy.properties import BooleanProperty, StringProperty, NumericProperty
 from mido import Message
 
+from widgets.midicontrol import midieditable
+
 
 Builder.load_string("""
 #:import get_color_from_hex kivy.utils.get_color_from_hex
@@ -66,12 +68,19 @@ class RadioButton(ToggleButtonBehavior, StackLayout):
                 self.disable = False
 
         self.ids.check.bind(active=on_active)
+        self.ids.lab.on_touch_down = self.on_label_click
+        self.ids.check.__do_press = self.ids.check._do_press
+        self.ids.check._do_press = self.on_do_press
 
-        def on_label_click(touch):
-            if self.ids.lab.collide_point(touch.x, touch.y):
-                self.ids.check._do_press()
+    def on_label_click(self, touch):
+        if self.ids.lab.collide_point(touch.x, touch.y):
+            self.ids.check._do_press()
 
-        self.ids.lab.on_touch_down = on_label_click
+
+    @midieditable
+    def on_do_press(self, *args):
+        self.ids.check.__do_press()
+
 
 
 Builder.load_string("""

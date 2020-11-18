@@ -26,6 +26,7 @@ std_16_keymap = {
 # must also be imported after safe_key_event to avoid circular dependency
 from modes import fundamental  # noqa: F401, E402  # pylint: disable=unused-import,wrong-import-position
 from modes import channel  # noqa: F401, E402  # pylint: disable=unused-import,wrong-import-position
+from modes import edit  # noqa: F401, E402  # pylint: disable=unused-import,wrong-import-position
 
 
 # ================================================================================
@@ -33,6 +34,7 @@ from modes import channel  # noqa: F401, E402  # pylint: disable=unused-import,w
 
 major_modes_keymap = {
     'f': 'fundamental',
+    'e': 'edit',
 }
 
 minor_modes_keymap = {
@@ -97,6 +99,7 @@ def key_up(func):
 
 
 class KeyboardAdapter:
+    """Inherited in root widget, gives it a keyboard full of features"""
     def __init__(self, *_args, **_kwargs):
         self._keyboard = None
 

@@ -8,7 +8,7 @@ from widgets.namedpanel import NamedPanel
 
 
 def _check_editable_mode_active():
-    return True
+    return App.get_running_app().cm.major_mode.__name__ == 'modes.edit'
 
 
 def midieditable(func):
@@ -16,7 +16,7 @@ def midieditable(func):
     In order to provide a fast way to edit that control"""
     def _midieditable(*args, **kwargs):
         if not _check_editable_mode_active():
-            func(*args, **kwargs)
+            return func(*args, **kwargs)
         app = App.get_running_app()
         parent = args[0].parent
         try:
@@ -37,5 +37,6 @@ def midieditable(func):
             content=settings,
             size_hint=(.8, .8),
         )
+        popup.bind(on_dismiss=App.get_running_app().on_settings_close)
         popup.open()
     return _midieditable
