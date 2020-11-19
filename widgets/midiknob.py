@@ -1,12 +1,11 @@
 from kivy.app import App
 from kivy.lang import Builder
-from kivy.logger import Logger
 from kivy.utils import get_color_from_hex
 from kivy.properties import NumericProperty, BoundedNumericProperty, ListProperty, StringProperty
 from kivy.garden.knob import Knob
-from mido import Message
 
-from widgets.midicontrol import midieditable
+from modes import MidiCCAdapter
+from modes.edit import prevent_when_edit
 
 
 class Knob(Knob):
@@ -18,7 +17,7 @@ class Knob(Knob):
             if not touch.is_mouse_scrolling:
                 self.update_angle(touch)
             else:
-                # they're logically inversed (not natural scrolling)
+                # they're logically inversed (natural scrolling)
                 value = self.value
                 if touch.button == 'scrolldown':
                     value += self.step * self.scrolling_step
@@ -47,7 +46,7 @@ Builder.load_string("""
 """, filename='MidiKnob.kv')
 
 
-class MidiKnob(Knob):
+class MidiKnob(Knob, MidiCCAdapter):
     control = BoundedNumericProperty(0, min=0, max=127)
     color = ListProperty(defaultvalue=[0, 0, 0, 0])
     name = StringProperty()
@@ -87,17 +86,17 @@ class MidiKnob(Knob):
     def on_pos(self, obj, pos):
         self.label_pos = [pos[0], pos[1] + obj.height]
 
-    @midieditable
+    @prevent_when_edit
     def update_angle(self, touch):
-        # override to add decorator that prevents angle to be updated
+        # override to prevent angle to be updated in edit mode
         super().update_angle(touch)
 
-    @midieditable
+    @prevent_when_edit
+    def on_touch_down(self, touch):
+        super().on_touch_down(touch)
+
     def on_knob(self, value):
-        value = int(value)
-        msg = Message('control_change', control=self.control, channel=self.channel, value=value)
-        self.output.send(msg)
-        Logger.info(msg)
+        self.cc(self.control, value)
 
     def __str__(self):
         return f'Knob: {self.name}'

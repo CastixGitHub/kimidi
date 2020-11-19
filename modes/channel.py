@@ -30,3 +30,8 @@ def key_down(_root, _keyboard, _scancode, codepoint, _modifier):
 @modes.safe_key_event
 def key_up(_root, _keyboard, _scancode):
     pass
+
+
+@modes.safe_cc
+def midi_cc(*a, **kw):
+    pass

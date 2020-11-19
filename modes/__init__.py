@@ -1,19 +1,68 @@
+"""Key concepts:
+modes react to user inputs and are them that send the midi messages or make things happen on the screen,
+them are a central point of this application
+there are major modes and minor modes
+you can activete only 1 major mode, and unlimted minor modes at the same time.
+minor modes act before major mode and may change user input
+so minor modes can conflict each other, when there might be a conflict, the conflictual one is deactivated
+
+List of major modes:
+- fundamental mode that allows you to send midi events with your keyboard and send cc events
+- edit mode that allows you to edit controls and does not send anything
+List of minor modes:
+- channel allows you to select the channel/sreen
+- octave allows you to rapidly get higher or lower notes from the keyboard (conflicts with channel)
+"""
 from functools import wraps
 from kivy.app import App
 from kivy.logger import Logger
 from kivy.core.window import Window
+from kivy.event import EventDispatcher
 
 
 # ================================================================================
 # defining helpers to create modes
+
+
+def int_max(v, _max=127):
+    """converts to int if needed, ensures values are >= 0 <= 127 and channel >= 0 <=15,
+    also avoid the app to crash when there is an error into the used mode"""
+    if isinstance(v, (str, float)):
+        v = int(v)
+    if not isinstance(v, int):
+        raise ValueError(v)
+    if 0 > v <= _max:
+        raise ValueError(v)
+    return v
+
 
 def safe_key_event(func):
     def _key(*args, **kwargs):
         try:
             func(*args, **kwargs)
         except Exception as e:  # pylint: disable=broad-except
-            Logger.exception(e)
+            Logger.exception('kimidi.modes: key failed %s', e)
     return _key
+
+
+def safe_cc(func):
+    def _cc(w, cc, value, **kwargs):
+        channel = kwargs.pop('channel', None)  # pylint: disable=redefined-outer-name # noqa: F811
+        if channel is None and w and hasattr(w, 'channel'):  # autodetect from widgets
+            channel = w.channel
+        else:
+            channel = App.get_running_app().cm.channel
+
+        try:
+            if channel is None:
+                raise Exception('kimidi.modes.fundamental: cannot get channel in any way')
+            cc = int_max(cc)
+            channel = int_max(channel, _max=15)
+            value = int_max(value)
+            func(w, cc, value, channel=channel, **kwargs)
+        except Exception:  # pylint: disable=broad-except
+            Logger.exception('kimidi.modes:')
+    return _cc
 
 
 std_16_keymap = {
@@ -22,6 +71,7 @@ std_16_keymap = {
 }
 
 
+# ================================================================================
 # modes here are imported so that cache_manager can get them
 # must also be imported after safe_key_event to avoid circular dependency
 from modes import fundamental  # noqa: F401, E402  # pylint: disable=unused-import,wrong-import-position
@@ -118,3 +168,32 @@ class KeyboardAdapter:
     @key_up
     def on_key_up(self, _keyboard, _scancode):
         pass
+
+
+# ================================================================================
+# now it's time to get midi cc events, them can be triggered
+# by clicking, scrolling, keyboard or whatever
+# currently edit mode supports widgets only
+
+class MidiCCAdapter(EventDispatcher):
+    """Inherited on every widget that sends midi cc events"""
+    def __init__(self, *args, **kwargs):
+        self.register_event_type('on_midi_cc')  # pylint: disable=not-callable
+        super().__init__(*args, **kwargs)
+
+    def on_midi_cc(self, cc, value, **kwargs):
+        """
+        channel is automatically detected, if the automatic detection fails, an error is logged.
+        channel detection is available for widgets only, you can always override the channel used
+        in kwargs like self.cc(64, channel=2)
+        """
+        cm = App.get_running_app().cm
+        for minor_mode in cm.minor_modes:
+            minor_mode.midi_cc(self, cc, value, **kwargs)
+        cm.major_mode.midi_cc(self, cc, value, **kwargs)
+
+    def cc(self, cc, value, **kwargs):  # just a shorthand
+        self.dispatch('on_midi_cc', cc, value, **kwargs)
+
+# TODO: make mode selection available through UI
+# class ClickyModeSwitcher:

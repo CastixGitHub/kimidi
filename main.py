@@ -27,7 +27,7 @@ class Root(FloatLayout, KeyboardAdapter):
     def init_screens(self):
         # also setup the keyboard, as can be closed by the settings
         self.setup_keyboard()
-        
+
         current = self.app.sm.current
         self.app.sm.clear_widgets()
         for channel_name in settings.names_of.channels(self.app.config):
@@ -167,7 +167,9 @@ class KiMidiApp(App):
             self.build_settings(self.settings)
 
         if section == 'general' and key == 'base_octave':
-            self.cm.note_octave = int(value)
+            self.cm.note_octave = int(value)  # this is just the starting one
+        # TODO: if a name of a control/panel changes, it should replace in the config file a lot of stuff
+        # BUG: so you cannot rename them, otherwise the config would get dirty
 
     def on_settings_close(self, *args):
         self.root.render()

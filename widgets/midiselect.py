@@ -3,13 +3,12 @@ from uuid import uuid4
 from kivy.app import App
 from kivy.lang import Builder
 from kivy.logger import Logger
-from kivy.uix.behaviors import ToggleButtonBehavior
 from kivy.uix.boxlayout import BoxLayout
 from kivy.uix.stacklayout import StackLayout
 from kivy.properties import BooleanProperty, StringProperty, NumericProperty
-from mido import Message
 
-from widgets.midicontrol import midieditable
+from modes import MidiCCAdapter
+from modes.edit import prevent_when_edit
 
 
 Builder.load_string("""
@@ -18,6 +17,7 @@ Builder.load_string("""
     CheckBox:
         id: check
         group: root.uuid
+        allow_no_selection: False
         size_hint_x: None
         width: 30
         height: 15
@@ -35,7 +35,7 @@ Builder.load_string("""
 """, filename="RadioButton.kv")
 
 
-class RadioButton(ToggleButtonBehavior, StackLayout):
+class RadioButton(StackLayout, MidiCCAdapter):
     selected = BooleanProperty(False)
     text = StringProperty('RadioButton')
     color = StringProperty('ffffff')
@@ -59,35 +59,37 @@ class RadioButton(ToggleButtonBehavior, StackLayout):
                 value[0],
                 'ENABLED' if _value else 'DISABLED',
             )
+            # sends midi messages only when gets enabled
             if _value and not self.disable:
-                msg = Message('control_change', control=self.control, channel=self.channel, value=self.value)
-                Logger.info(msg)
-                self.mido_output.send(msg)
+                self.cc(self.control, self.value)
                 self.disable = True
             else:
                 self.disable = False
 
+        # what a hack
         self.ids.check.bind(active=on_active)
         self.ids.lab.on_touch_down = self.on_label_click
-        self.ids.check.__do_press = self.ids.check._do_press
+        self.ids.check.__do_press__ = self.ids.check._do_press
         self.ids.check._do_press = self.on_do_press
 
     def on_label_click(self, touch):
         if self.ids.lab.collide_point(touch.x, touch.y):
             self.ids.check._do_press()
 
-
-    @midieditable
+    @prevent_when_edit
     def on_do_press(self, *args):
-        self.ids.check.__do_press()
+        self.ids.check.__do_press__()
 
+    @property
+    def name(self):
+        return self.parent.name
 
 
 Builder.load_string("""
 <RadioButtonGroup@BoxLayout>:
     orientation: 'vertical'
     Label:
-        text: root.text
+        text: root.name
         markup: True
         text_size: 60, 20
         #size_hint: 0.9, None
@@ -97,11 +99,11 @@ Builder.load_string("""
 
 
 class RadioButtonGroup(BoxLayout):
-    text = StringProperty('radiogroup')
+    name = StringProperty('radiogroup')
 
     def __init__(self, text, values, channel, color, cc, **kwargs):
         super().__init__(**kwargs)
-        self.text = text
+        self.name = text
         uuid = str(uuid4())
         for value in values.items():
             self.add_widget(

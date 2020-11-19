@@ -68,7 +68,7 @@ def dumps(panel_names, config):
         controllers_names = purge_strings(config.get(f'panel {panel_name}', 'controls').split(','))
         for cn in controllers_names:
             # TODO: fix useless json encoding/decoding
-            controllers.extend(json.loads(dumps_single(panel_name, cn, f'{panel_name} - {cn} - ')))  
+            controllers.extend(json.loads(dumps_single(panel_name, cn, f'{panel_name} - {cn} - ')))
         if len(controllers_names):
             controllers.extend([
                 {

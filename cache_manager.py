@@ -1,20 +1,12 @@
+# pylint: disable=no-self-use
 from kivy.cache import Cache
 from kivy.logger import Logger
 from mido import open_output
 import modes
 
 
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
-
-
 # use cache only for temporary stuff you don't wish to save
-class CacheManager(metaclass=Singleton):
+class CacheManager:
     def __init__(self):
         Cache.register('kimidi', timeout=None)
         Cache.append('kimidi', 'mido_output', open_output())
@@ -69,7 +61,6 @@ class CacheManager(metaclass=Singleton):
     @property
     def keys(self):
         return Cache.get('kimidi', 'available_keys', {})
-
 
     @keys.setter
     def keys(self, dict_):
