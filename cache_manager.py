@@ -1,4 +1,5 @@
 # pylint: disable=no-self-use
+from kivy.app import App
 from kivy.cache import Cache
 from kivy.logger import Logger
 from mido import open_output
@@ -13,16 +14,23 @@ class CacheManager:
 
     @property
     def major_mode(self):
-        name = Cache.get('kimidi', 'major_mode', 'fundamental')
         try:
-            return getattr(modes, name)
+            return getattr(modes, self.major_mode_name)
         except AttributeError:
             Logger.error('kimidi.cache_manager: add mode {name} in modes/__init__.py')
             return getattr(modes, 'fundamental')
 
+    @property
+    def major_mode_name(self):
+        return Cache.get('kimidi', 'major_mode', 'fundamental')
+
     @major_mode.setter
     def major_mode(self, name):
+        if not App.get_running_app().args.dont_toggle_major_mode\
+                and name == self.major_mode_name:
+            name = 'fundamental'
         Cache.append('kimidi', 'major_mode', name)
+        raise modes.ModeChanged(f'Major mode {name} activated')
 
     @property
     def minor_modes_names(self):
@@ -44,7 +52,8 @@ class CacheManager:
         if was_there or force == 0:
             names.remove(name)
         self.minor_modes_names = list(set(names))
-        return name in self.minor_modes_names
+        state = name in self.minor_modes_names
+        raise modes.ModeChanged(f'Minor mode {name} {"ON" if state else "OFF"}')
 
     @property
     def output(self):

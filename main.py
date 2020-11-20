@@ -208,6 +208,14 @@ if __name__ == '__main__':
         default='kimidi',
         help='config file (without .ini extension) that holds panels etc, defaults to kimidi',
     )
+    parser.add_argument(
+        '--dont-toggle-major-mode',
+        '-d',
+        help="toggle also major modes by repeating the shortcut."
+        " if disabled, you won't go back to fundamental mode when you press C-e multiple times",
+        action='store_true',
+        default=False,
+    )
 
     Builder.load_string("""
 <Root>:

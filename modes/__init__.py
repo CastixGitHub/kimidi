@@ -6,6 +6,10 @@ you can activete only 1 major mode, and unlimted minor modes at the same time.
 minor modes act before major mode and may change user input
 so minor modes can conflict each other, when there might be a conflict, the conflictual one is deactivated
 
+modes can be activated by pressing your "meta" key
+(because of my pc, should be configurable in the future and a different default)
+and a key defined in the keymaps in this file (e for edit, c for channel, etc)
+
 List of major modes:
 - fundamental mode that allows you to send midi events with your keyboard and send cc events
 - edit mode that allows you to edit controls and does not send anything
@@ -103,7 +107,7 @@ class ModeChanged(Exception):
     pass
 
 
-# these are modifiers, probably because of remapping?
+# these are because of modifiers, probably because of remapping?
 weird_codepoints = ['ĵ', 'Ĵ', 'ı', None]
 
 
@@ -112,10 +116,8 @@ def mode_changer(_root, _keyboard, _scancode, codepoint, modifier):
     if 'meta' in modifier:
         if codepoint in major_modes_keymap.keys():
             cm.major_mode = major_modes_keymap[codepoint]
-            raise ModeChanged(f'Major mode {major_modes_keymap[codepoint]} activated')
         if codepoint in minor_modes_keymap.keys():
-            state = cm.toggle_minor_mode(minor_modes_keymap[codepoint])
-            raise ModeChanged(f'Minor mode {minor_modes_keymap[codepoint]} to {"ON" if state else "OFF"}')
+            cm.toggle_minor_mode(minor_modes_keymap[codepoint])
         if codepoint not in weird_codepoints:
             Logger.warning('kimidi.modes: %s mode not available: %s', codepoint,
                            {**major_modes_keymap, **minor_modes_keymap})
