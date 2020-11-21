@@ -1,0 +1,61 @@
+* Kimidi
+
+** settings
+
+settings are user/controller preference that refer to an instrument.
+
+settings are built with with kivy settings (a python configparser derivate)
+
+settings are written into this package, *__init__.py* defines helpers to write and handle settings
+
+** sections
+
+the configuration is split into sections
+
+*** general
+
+**** screen_names
+the most important key, by setting this you can create the screen sections
+
+*** screen *name*
+
+**** panels_names
+the most important key, by settings this you can put panels inside a screen.
+all the modifications to the names, should then be done calling the approriate function *rename_screen_panels*
+that will 
+
+**** default channel
+channel number used by this screen, will be applied to all controllers in this screen
+MIDI allows up to 16 channels
+
+**** rows (TODO: check)
+force number of rows, if panels don't fit in, a new row is added and a warning left in the logs
+
+**** columns
+force number of columns, default 1
+
+*** panel *name*
+
+panels are useful for splitting all the widgets into a grid
+
+a panel can have subpanels, their name is internally stored as a new section named *panel grandfather.father.child*
+but just *child* is shown in the UI (with a surrounding border)
+
+**** panels_names
+by settings this the panel is the mum of other panels
+all the modifications to the names, should then be done calling the approriate function *rename_panel*
+
+**** controls
+name of associated midi cc events
+should be updated just bt the appropriate function *rename_controls*
+
+**** rows (TODO: check)
+force number of rows, if panels don't fit in, a new row is added and a warning left in the logs
+
+**** columns
+force number of columns, default 1
+
+
+*** control.*name*:*panel_name*:
+
+all the modifications to the name, should then be done calling the approriate function *rename_control*

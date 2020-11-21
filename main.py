@@ -5,6 +5,7 @@ import argparse
 os.environ["KIVY_NO_ARGS"] = "1"
 from kivy.lang import Builder  # noqa: E402
 from kivy.logger import Logger  # noqa: E402
+Logger.setLevel(10)  # 10 is logging.DEBUG
 from kivy.app import App  # noqa: E402
 from kivy.core.window import Window  # noqa: E402
 from kivy.uix.settings import Settings  # noqa: E402
@@ -161,10 +162,8 @@ class KiMidiApp(App):
 
     def on_config_change(self, config, section, key, value):
         Logger.info('on_config_change: section="%s" key="%s" value=%s', section, key, value)
-        rebuild = False
-        if section == 'general' and key == 'channel_names':
-            rebuild = True
-        elif section.startswith('channel') and key == 'panels':
+        settings.general.on_config_change(config, section, key, value)
+        if section.startswith('channel') and key == 'panels':
             rebuild = True
         elif section.startswith('panel') and key in ('panels', 'controls'):
             rebuild = True

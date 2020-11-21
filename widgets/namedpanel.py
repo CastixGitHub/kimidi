@@ -75,9 +75,11 @@ class NamedPanel(GridLayout):
 
         if force_rows:
             self.rows = force_rows
+            Logger.debug('kimidi.namedpanel: forced rows of %s (%s)', self, self.rows)
         if force_cols:
             self.cols = force_cols
-
+            Logger.debug('kimidi.namedpanel: forced columns of %s (%s)', self, self.cols)
+            
         while len(self.children) > self.rows * self.cols:
             Logger.warning('kimidi.namedpanel: adding 1 row to %s', self)
             self.rows += 1
