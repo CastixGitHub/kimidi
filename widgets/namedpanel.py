@@ -43,8 +43,10 @@ class NamedPanel(GridLayout):
             **kwargs
     ):
         # draw text: name of the panel. must be done before super
-        self.name = name
-        self.name_label = CoreLabel(text=name, font_size=16)
+        self.name = self._name = name
+        if '.' in name:
+            self._name = name.split('.')[-1]
+        self.name_label = CoreLabel(text=self._name, font_size=16)
         self.name_label.refresh()
         self.name_label = self.name_label.texture
         if available_width:
