@@ -221,6 +221,13 @@ if __name__ == '__main__':
         action='store_true',
         default=False,
     )
+    parser.add_argument(
+        '--debug',
+        '-D',
+        help="enter debug, on the shell where you lanched kimidi, you'll get your favourite debugger",
+        action='store_true',
+        default=False,
+    )
 
     Builder.load_string("""
 <Root>:
@@ -233,4 +240,18 @@ if __name__ == '__main__':
         on_release: app.open_settings()
 """, filename='Root.kv')
 
-    KiMidiApp(args=parser.parse_args()).run()
+    args = parser.parse_args()
+
+    if args.debug:
+        from modes.debug import enter_debug  # noqa: E401  # pylint: disable=ungrouped-imports
+        from logging import DEBUG
+        Logger.setLevel(DEBUG)
+        enter_debug()
+        # import threading
+        # threading.Thread(target=KiMidiApp(args=args).run, daemon=True).start()
+        # __import__('IPython').embed()
+        # from kivy.interactive import InteractiveLauncher
+        # InteractiveLauncher(KiMidiApp(args=args)).run()
+
+    # run the app ********************************************************************************
+    KiMidiApp(args=args).run()

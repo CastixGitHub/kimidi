@@ -87,11 +87,13 @@ from modes import edit  # noqa: F401, E402  # pylint: disable=unused-import,wron
 # now it's time to define utilities to switch modes and to handle the keys
 
 major_modes_keymap = {
+    # 'D': 'debug', is not an activable mode (use -D option), but reserved as it might become a full mode someday
     'f': 'fundamental',
     'e': 'edit',
 }
 
 minor_modes_keymap = {
+    # 'D': 'debug', is not an activable mode (use -D option), but reserved as it might become a full mode someday
     'c': 'channel',
     'o': 'octave',
 }

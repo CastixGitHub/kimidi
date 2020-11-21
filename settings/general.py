@@ -41,7 +41,6 @@ def dumps():
 def on_config_change(config, section, key, value):
     if section == 'general':
         if key == 'channel_names':
-            import pdb; pdb.set_trace()
             old = split_purge(config.get('general', 'channel_names'))
             old_channels = [config[f'channel {ch}'] for ch in old]
             new = split_purge(value)
