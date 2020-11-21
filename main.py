@@ -6,6 +6,7 @@ os.environ["KIVY_NO_ARGS"] = "1"
 from kivy.lang import Builder  # noqa: E402
 from kivy.logger import Logger  # noqa: E402
 from kivy.app import App  # noqa: E402
+from kivy.core.window import Window  # noqa: E402
 from kivy.uix.settings import Settings  # noqa: E402
 from kivy.uix.gridlayout import GridLayout  # noqa: E402
 from kivy.uix.floatlayout import FloatLayout  # noqa: E402
@@ -100,6 +101,11 @@ class KiMidiApp(App):
     def __init__(self, args=None, **kw):
         super().__init__(**kw)
         self.args = args
+        Window.bind(on_resize=self.on_window_resize)
+
+    def on_window_resize(self, window, width, height):
+        print('on window resize')
+        self.root.render()
 
     def get_application_config(self, _defaultpath=None):
         return super().get_application_config(

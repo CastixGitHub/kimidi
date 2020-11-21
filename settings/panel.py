@@ -1,5 +1,6 @@
 import json
 from configparser import NoSectionError
+from kivy.core.window import Window
 from kivy.logger import Logger
 from kivy.utils import get_color_from_hex
 from settings import control
@@ -13,7 +14,7 @@ def setdefaults(config, name):
         'color': '#ffffff',
         'rows': 0,
         'cols': 0,
-        'width': None,
+        'width': '',
         'controls': '',
     })
 
@@ -32,10 +33,12 @@ def to_widget(config, name, channel):
         items.append(control.to_widget(config, f'control.{c}:{name}', channel))
 
     try:
-        width = float(config.get(f'panel {name}', 'width')) / 100
+        width = float(config.get(f'panel {name}', 'width').replace('%', '')) / 100 * Window.width
         size_hint_x = None
     except ValueError:
-        width = 1
+        if config.get(f'panel {name}', 'width') not in ('None', ''):
+            Logger.warning('panel %s has width %s so it is invalid', name, config.get(f'panel {name}', 'width'))
+        width = None
         size_hint_x = 1
     cols = int(config.get(f'panel {name}', 'cols'))
     rows = int(config.get(f'panel {name}', 'rows'))
@@ -68,7 +71,7 @@ Ask me if you wish to get a different color for text and border''',  # TODO: i18
             'key': 'width',
             'title': 'Width',
             'section': f'panel {name}',
-            'type': 'numeric',
+            'type': 'string',
             'desc': 'percentage of screen that this widget should have',  # TODO i18n
         },
         {

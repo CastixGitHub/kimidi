@@ -37,7 +37,7 @@ class NamedPanel(GridLayout):
             self,
             name,
             items=None,
-            available_width=1,
+            available_width=None,
             force_rows=None,
             force_cols=None,
             **kwargs
@@ -47,16 +47,29 @@ class NamedPanel(GridLayout):
         self.name_label = CoreLabel(text=name, font_size=16)
         self.name_label.refresh()
         self.name_label = self.name_label.texture
+        if available_width:
+            self.width = available_width
         super().__init__(**kwargs)
 
         for item in items:
             self.add_widget(item)
 
+        self.size_hint_min = (200, 20)
+        self.size_hint_max = (Window.width, Window.height)
+
         # basic autodetect of cols/rows. self.size is not still available
         # rows can exceed height of the window
-        width = sum(w.width for w in self.children)  # + padding + spacing
-        self.rows = int(1 + (width / (Window.width * available_width)))
-        self.cols = int(1 + (len(items)) / self.rows)
+        child_width = sum(
+            max(w.width, self.size_hint_min_x) for w in self.children
+        ) or self.size_hint_max_x  # wontfix: + padding + spacing
+        Logger.debug('kimidi.namedpanel: child_size %s on %s', child_width, self)
+        # for w in self.children:
+        #     print(w, w.size)
+
+        self.rows = int(1 + (child_width / (available_width or Window.width)))
+        Logger.debug('kimidi.namedpanel: detected %s rows on %s', self.rows, self)
+        self.cols = int(len(items) / self.rows) or 1
+        Logger.debug('kimidi.namedpanel: detected %s cols on %s', self.cols, self)
 
         if force_rows:
             self.rows = force_rows
@@ -64,7 +77,7 @@ class NamedPanel(GridLayout):
             self.cols = force_cols
 
         while len(self.children) > self.rows * self.cols:
-            Logger.warning(f'adding 1 row to NamedPanel {name}')
+            Logger.warning('kimidi.namedpanel: adding 1 row to %s', self)
             self.rows += 1
 
     def __str__(self):
