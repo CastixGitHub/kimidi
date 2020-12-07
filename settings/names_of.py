@@ -4,10 +4,7 @@ import settings
 
 
 def channels(config):
-    return sorted(
-        split_purge(config.get('general', 'channel_names')),
-        key=lambda n: config.get(f'channel {n}', 'number'),
-    )
+    return split_purge(config.get('general', 'channel_names'))
 
 
 def panels(config):
