@@ -15,7 +15,7 @@ except ImportError:
 
 def _target():  # pylint: disable=too-many-locals
     # wait app startup
-    time.sleep(1)
+    time.sleep(.5)
 
     # defining here a namespace pre-populated for locals()
     app = App.get_running_app()
@@ -42,7 +42,7 @@ def _target():  # pylint: disable=too-many-locals
     def section(name):
         return dict(zip(section_keys(name), section_values(name)))
 
-    while True:   # this way you cant exit the debugger :P a new one is spawned
+    while True:   # this way you cant exit the debugger :P a new one is spawned  # you can in ipython tough
         # if you want to use python's help built-in use it like: !help(app)
         try:
             __import__('IPython').embed()
