@@ -5,4 +5,6 @@ flycheck_*
 # emacs file that I use to activate virtualenv
 .dir-locals.el
 
+# Python files
 *.py[co]
+*.egg-info

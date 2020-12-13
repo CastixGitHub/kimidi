@@ -78,7 +78,7 @@ class MidiKnob(Knob, MidiCCAdapter):
         self.max = maximum
         self.step = 1
         self.value = 0
-        self.knobimg_source = "img/ugly_knob.png"
+        self.knobimg_source = "libs/garden/garden.knob/img/ugly_knob.png"
         self.show_marker = True
         self.marker_color = [0, 1, 0, .5]
         self.scrolling_step = 4

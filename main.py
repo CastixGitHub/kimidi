@@ -18,17 +18,6 @@ from modes import KeyboardAdapter  # noqa: E402
 import cache_manager as cm  # noqa: E402
 
 
-class ScreenManager(ScreenManager):  # pylint: disable=function-redefined
-    """fix screen manager on kivy<2.0
-    https://stackoverflow.com/questions/57537158/when-clear-widgets-is-called-it-doesnt-remove-screens-in-screenmanager"""
-    def clear_widgets(self, screens=None):
-        if screens is None:
-            screens = self.screens
-
-        for screen in screens[:]:
-            self.remove_widget(screen)
-
-
 class Root(FloatLayout, KeyboardAdapter):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
@@ -266,4 +255,3 @@ if __name__ == '__main__':
 
     # run the app ********************************************************************************
     KiMidiApp(args=args).run()
-

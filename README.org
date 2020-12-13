@@ -2,23 +2,28 @@
 The energy of midi
 
 ** introduction
-Is a software that acts as a midi controller
+Is a software midi controller
 
 ** features
 - fully configurable boxes of knobs and sliders (midi control change (CC)) (you can choose even the colors!)
 - sends keyboards events (midi ON and midi OFF) (key map shared/like vkeybd)
-- channel selection with C-c n (Control + c, then a number)
-- note octave selection with C-o n (Control + o, then a number) (if "a" is 8, on 6th octave "a" will be 56 (6 * 8 + 8))
+- several modes available to respond to events, in emacs-style fashion
+- debug mode
 
 ** dependencies
-python3
-rtmidi
-mido
-kivy
-kivy.garden.knob
+- python3.6+
+- a midi backend for mido (such as rtmidi (I'm developing with python-rtmidi))
+- see setup.py for all the dependencies
 
 ** installation
-TODO
+
+*** instructions for developers (or just to get the latest version)
+1. git clone this repository
+2. *cd* into the root of the project
+3. create a virtualenv and activate that (I suggest virtualenvwrapper but you can just *virtualenv venv; source venv/bin/activate*)
+4. install the dependecies with *pip install -e ".[dev]"*
+5. install the mido backend of your choice, eg *pip install python-rtmidi* (this is platform dependent so it is up to you)
+6. run it with *python main.py*, enjoy
 
 ** example with extempore
 run kimidi, then
@@ -66,22 +71,6 @@ Then
 This example shows how to use kimidi with extempore sharedsystem example
 using only one analogue synth *syn1* you can use the chan parameter to bind other instruments
 
-
-** todos
-*** TODO ui: mapping of feasible values for knob (eg: sine, tri...)
-*** TODO feat: selectable configuration file
-*** TODO ux: right click selects a knob (overlay)
-*** TODO feat: selected knobs should move together
-*** TODO with two selected knobs: should move together in inverse direction if ctrl pressed
-*** TODO with two selected knobs: the second should move (m: default 2) times faster as the first if shift is pressed
-*** TODO with two selected knobs: enable shift+numbers to change m for speed change with shift (1 is 0.5) (0 is 10)
-*** TODO midi input (feedback) (if the knob is changed on the controlled system, the value should be updated even in kimidi)
-*** TODO readme: installation
-*** TODO readme: example with fluidsynth
-*** TODO readme: example with extempore
-*** TODO readme: screenshoots
-*** TODO mirror on github
-*** TODO feat: paint like automation (given a set of parameters (only 1 selectable at a time)) (automate that for the duration of N seconds)
 
 ** contributing
 set git hooks to run flake8 before commit
