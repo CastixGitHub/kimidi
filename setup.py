@@ -16,6 +16,7 @@ from setuptools import setup, find_packages
 
 
 install_requires = [
+    'trio',
     'mido',
     'kivy>=2.0.0',
     # 'kivy_garden.knob',  # it's a legacy flower, installed in libs/garden

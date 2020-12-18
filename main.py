@@ -256,16 +256,12 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
 
+    app = KiMidiApp(args=args)
     if args.debug:
         from modes.debug import enter_debug  # noqa: E401  # pylint: disable=ungrouped-imports
         from logging import DEBUG
         Logger.setLevel(DEBUG)
-        enter_debug()
-        # import threading
-        # threading.Thread(target=KiMidiApp(args=args).run, daemon=True).start()
-        # __import__('IPython').embed()
-        # from kivy.interactive import InteractiveLauncher
-        # InteractiveLauncher(KiMidiApp(args=args)).run()
-
-    # run the app ********************************************************************************
-    KiMidiApp(args=args).run()
+        enter_debug(app)
+    else:
+        # run the in sync context, without trio
+        app.run()
