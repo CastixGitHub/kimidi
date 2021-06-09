@@ -27,9 +27,9 @@ Is a software midi controller
 
 ** example with extempore
 run kimidi, then
-run extempore and evaluate the following code
+run extempore with *--midiin="RtMidi"* and evaluate the following code
 
-#+BEGIN_SRC scheme
+#+BEGIN_SRC extempore
 (sys:load "examples/sharedsystem/setup.xtm")
 
 (bind-func bare_start_note

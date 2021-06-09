@@ -176,7 +176,7 @@ class KiMidiApp(App):
 
     def on_config_change(self, config, section, key, value):
         Logger.info('on_config_change: section="%s" key="%s" value=%s', section, key, value)
-        settings.general.on_config_change(config, section, key, value)
+        rebuild = settings.general.on_config_change(config, section, key, value)
         if section.startswith('channel') and key == 'panels':
             rebuild = True
         elif section.startswith('panel') and key in ('panels', 'controls'):

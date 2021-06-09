@@ -53,11 +53,18 @@ def dumps():
 
 
 def on_config_change(config, section, key, value):
+    """Return True means rebuild the settings"""
     if section == 'general':
         if key == 'channel_names':
-            old = split_purge(config.get('general', 'channel_names'))
-            old_channels = [config[f'channel {ch}'] for ch in old]
-            new = split_purge(value)
-            new_channels = [config[f'channel {ch}'] for ch in split_purge(new)]
-            if len(old_channels) == len(new_channels):
-                pass
+            try:
+                old = split_purge(config.get('general', 'channel_names'))
+                old_channels = [config[f'channel {ch}'] for ch in old]
+                new = split_purge(value)
+                new_channels = [config[f'channel {ch}'] for ch in split_purge(new)]
+                if len(old_channels) == len(new_channels):
+                    return False
+                return True
+            except KeyError:
+                return True  # start from empty config
+        return True
+            
